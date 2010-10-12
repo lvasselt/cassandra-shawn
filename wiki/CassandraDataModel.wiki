@@ -8,7 +8,7 @@ The basic concepts are:
 
  * Keyspace: a namespace for ColumnFamilies, typically one per application.
 
- * ColumnFamilies contain multiple columns, each of which has a name, value, and a timestamp, and which are referenced by row keys.
+ * ColumnFamilies: contain multiple columns, each of which has a name, value, and a timestamp, and which are referenced by row keys.
 
  * SuperColumns can be thought of as columns that themselves have subcolumns. 
 

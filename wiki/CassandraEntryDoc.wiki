@@ -9,6 +9,7 @@
 Cassandra分布式模型与源代码分析 
 
  * [http://wenku.baidu.com/view/7de8c1114431b90d6c85c7f6.html]
+ * [http://perspectives.mvdirona.com/2009/02/07/FacebookCassandraArchitectureAndDesign.aspx]
 
 PPT展示
 

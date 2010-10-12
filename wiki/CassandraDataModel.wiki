@@ -1,4 +1,4 @@
-#labels CassandraDataModel
+#labels AdescriptionoftheCassandradatamodel
 ==Introduction==
 
 Cassandra has a data model that can most easily be thought of as a four or five dimensional hash.

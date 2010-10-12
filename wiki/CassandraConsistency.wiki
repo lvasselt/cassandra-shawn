@@ -1,0 +1,2 @@
+#labels Consistency
+[http://cassandra-shawn.googlecode.com/files/CassandraConsistency.JPG]

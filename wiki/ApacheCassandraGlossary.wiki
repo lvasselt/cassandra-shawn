@@ -134,11 +134,12 @@ This is just a glossary, so it's not intended to be read start to finish. Some i
     A major compaction is triggered one of two ways: via a node probe, or automatically. A node probe sends a TreeRequest message to the nodes that neighbor the target. When a node receives a TreeRequest, it immediately performs a read-only compaction in order to validate the Column Family.
 
     A read-only compaction has the following steps:
-
+{{{
        1. Get the key distribution from the column family.
        2. Once the rows have been added to the validator, if the Column Family needs to be validated, it will create the Merkle Tree and broadcast it to the neighboring nodes.
        3. The Merkle Trees are brought together in a "rendezvous" as a list of Differencers (trees that need validating or comparison).
        4. The comparison is executed by the StageManager class, which is responsible for handling concurrency issues in executing jobs. In this case, the StageManager uses an Anti-Entropy Stage. This uses the org.apache.cassandra.concurrent.JMXEnabledThreadPoolExecutor class which executes the compaction within a single thread, and makes the operation available as an MBean for inspection.
+}}}
 
  * Compression
 

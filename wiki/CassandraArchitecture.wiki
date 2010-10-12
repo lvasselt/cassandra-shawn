@@ -1,0 +1,6 @@
+#labels Cassandraarchitecture
+ArchitectureOverview:
+[http://wiki.apache.org/cassandra/ArchitectureOverview]
+
+ArchitectureInternals:
+[http://wiki.apache.org/cassandra/ArchitectureInternals]

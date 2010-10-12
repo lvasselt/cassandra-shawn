@@ -1,6 +1,6 @@
 #labels Cassandraarchitecture
-==ArchitectureOverview==
+==Architecture Overview==
 [http://wiki.apache.org/cassandra/ArchitectureOverview]
 
-==ArchitectureInternals==
+==Architecture Internals==
 [http://wiki.apache.org/cassandra/ArchitectureInternals]

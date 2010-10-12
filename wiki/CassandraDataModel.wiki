@@ -2,7 +2,7 @@
 Introduction
 
 Cassandra has a data model that can most easily be thought of as a four or five dimensional hash.
-{{{
+
 The basic concepts are:
 
     * Cluster: the machines (nodes) in a logical Cassandra instance. Clusters can contain multiple keyspaces.
@@ -105,4 +105,3 @@ A JSON description of this layout:
 Here my column family is "Tags". I have two super columns defined here, "cassandra" and "thrift". Within these I have specific named bookmarks, each of which is a column.
 
 Just like normal columns, super columns are sparse: each row may contain as many or as few as it likes; Cassandra imposes no restrictions. 
-}}}

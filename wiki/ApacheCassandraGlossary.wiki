@@ -257,6 +257,12 @@ This is just a glossary, so it's not intended to be read start to finish. Some i
 
     The node that received the hint will know very quickly when the unavailable node comes back online again, because of Gossip. If, for some reason, the hinted handoff doesn't work, the system can still perform a read repair.
 
+{{{
+1) A note is given to a different live node, it should replay the write opertion to the unavailable node when it comes back online, because of Gossip.
+2) A hinted handoff acknowledgement does count as a write for CL = ANY.
+3) Improve write performance. 
+}}}
+
  * Key
 
     See Row Key.

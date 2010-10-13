@@ -1,23 +1,23 @@
 #labels UnderstandingCassandraCodeBase
-Reading
+==Reading==
 
 Next you want to read some of the background material, depending on what part exactly you want to work on. I wanted to understand the read path, write path and how values are deleted, so I read the following documents about 5 times each. Yes, 5 times. Each. They are packed with information and I found myself absorbing a few more details each time I read. I used to read the document, get back to the source code, make sure I understand how the algorithm maps to the methods and classes, reread the document, reread the source code, read the unit tests (and run them, with a debugger) etc. Here are the docs.
 
-Architecture Internals: [http://wiki.apache.org/cassandra/ArchitectureInternals]
+<Architecture Internals>: [http://wiki.apache.org/cassandra/ArchitectureInternals]
 
-SEDA paper: [http://www.eecs.harvard.edu/~mdw/papers/seda-sosp01.pdf]
+<SEDA paper>: [http://www.eecs.harvard.edu/~mdw/papers/seda-sosp01.pdf]
 
-Hinted Handoff: [http://wiki.apache.org/cassandra/HintedHandoff]
+<Hinted Handoff>: [http://wiki.apache.org/cassandra/HintedHandoff]
 
-Architecture AntiEntropy: [http://wiki.apache.org/cassandra/ArchitectureAntiEntropy]
+<Architecture AntiEntropy>: [http://wiki.apache.org/cassandra/ArchitectureAntiEntropy]
 
-Architecture SSTable: [http://wiki.apache.org/cassandra/ArchitectureSSTable]
+<Architecture SSTable>: [http://wiki.apache.org/cassandra/ArchitectureSSTable]
 
-Architecture CommitLog: [http://wiki.apache.org/cassandra/ArchitectureCommitLog]
+<Architecture CommitLog>: [http://wiki.apache.org/cassandra/ArchitectureCommitLog]
 
-Distributed Deletes: [http://wiki.apache.org/cassandra/DistributedDeletes]
+<Distributed Deletes>: [http://wiki.apache.org/cassandra/DistributedDeletes]
 
-I also read the google BigTable paper and the fascinating Amazon’s Dynamo paper, but that was a long time ago. They are good as background material, but not required to understand actual bits of code.
+I also read the google BigTable paper [http://labs.google.com/papers/bigtable.html] and the fascinating Amazon’s Dynamo paper [http://s3.amazonaws.com/AllThingsDistributed/sosp/amazon-dynamo-sosp2007.pdf], but that was a long time ago. They are good as background material, but not required to understand actual bits of code.
 
 Well, after having read all this I was starting to get a clue what can be done and how but I still didn’t feel I’m at the level of really coding new features. After reading through the code a few times I realized I’m kind of stuck and still don’t understand things like “how do values really get deleted”, which class is responsible for which functionality, what stages are there and how is data flowing between stages, or “how can I mark and entire column family as deleted”, which is what I really wanted to do with the truncate operation.
 Stages

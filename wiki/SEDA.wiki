@@ -1,0 +1,4 @@
+#labels SEDA
+通过paper对SEDA开始入门：
+
+[http://www.eecs.harvard.edu/~mdw/papers/seda-sosp01.pdf]

@@ -1,0 +1,461 @@
+#labels CassandraTheDefinitiveGuide
+Table of Contents
+
+ 
+View Sample
+
+Copyright
+View Sample
+
+Dedication
+View Sample
+
+Foreword
+View Sample
+
+Preface
+View Sample
+Chapter 1. Introducing Cassandra
+View Sample
+
+Section 1.1. Overview
+View Sample
+
+Section 1.2. What's Wrong with Relational Databases?
+View Sample
+
+Section 1.3. A Quick Review of Relational Databases
+View Sample
+
+Section 1.4. The Cassandra Elevator Pitch
+View Sample
+
+Section 1.5. Where Did Cassandra Come From?
+View Sample
+
+Section 1.6. Use Cases for Cassandra
+View Sample
+
+Section 1.7. Who Is Using Cassandra?
+View Sample
+
+Section 1.8. Summary
+View Sample
+Chapter 2. Installing Cassandra
+View Sample
+
+Section 2.1. Overview
+View Sample
+
+Section 2.2. Installing the Binary
+View Sample
+
+Section 2.3. Building from Source
+View Sample
+
+Section 2.4. Running Cassandra
+View Sample
+
+Section 2.5. Running the Command Line Client Interface
+View Sample
+
+Section 2.6. Basic CLI Commands
+View Sample
+
+Section 2.7. Summary
+View Sample
+Chapter 3. The Cassandra Data Model
+View Sample
+
+Section 3.1. Overview
+View Sample
+
+Section 3.2. The Relational Data Model
+View Sample
+
+Section 3.3. A Simple Introduction
+View Sample
+
+Section 3.4. Clusters
+View Sample
+
+Section 3.5. Keyspaces
+View Sample
+
+Section 3.6. Column Families
+View Sample
+
+Section 3.7. Columns
+View Sample
+
+Section 3.8. SuperColumns
+View Sample
+
+Section 3.9. Design Differences Between RDBMS and Cassandra
+View Sample
+
+Section 3.10. Design Patterns
+View Sample
+
+Section 3.11. Some Things to Keep in Mind
+View Sample
+
+Section 3.12. Summary
+View Sample
+Chapter 4. Sample Application
+View Sample
+
+Section 4.1. Overview
+View Sample
+
+Section 4.2. Data Design
+View Sample
+
+Section 4.3. Hotel App RDBMS Design
+View Sample
+
+Section 4.4. Hotel App Cassandra Design
+View Sample
+
+Section 4.5. Hotel Application Code
+View Sample
+
+Section 4.6. Twissandra
+View Sample
+
+Section 4.7. Summary
+View Sample
+Chapter 5. The Cassandra Architecture
+View Sample
+
+Section 5.1. Overview
+View Sample
+
+Section 5.2. System Keyspace
+View Sample
+
+Section 5.3. Peer-to-Peer
+View Sample
+
+Section 5.4. Gossip & Failure Detection
+View Sample
+
+Section 5.5. Anti-Entropy & Read Repair
+View Sample
+
+Section 5.6. Memtables, SSTables, and Commit Logs
+View Sample
+
+Section 5.7. Hinted Handoff
+View Sample
+
+Section 5.8. Compaction
+View Sample
+
+Section 5.9. Bloom Filters
+View Sample
+
+Section 5.10. Tombstones
+View Sample
+
+Section 5.11. Staged Event-Driven Architecture (SEDA)
+View Sample
+
+Section 5.12. Managers and Services
+View Sample
+
+Section 5.13. Summary
+View Sample
+Chapter 6. Configuring Cassandra
+View Sample
+
+Section 6.1. Overview
+View Sample
+
+Section 6.2. Keyspaces
+View Sample
+
+Section 6.3. Replicas
+View Sample
+
+Section 6.4. Replica Placement Strategies
+View Sample
+
+Section 6.5. Replication Factor
+View Sample
+
+Section 6.6. Partitioners
+View Sample
+
+Section 6.7. Snitches
+View Sample
+
+Section 6.8. Creating a Cluster
+View Sample
+
+Section 6.9. Dynamic Ring Participation
+View Sample
+
+Section 6.10. Security
+View Sample
+
+Section 6.11. Miscellaneous Settings
+View Sample
+
+Section 6.12. Additional Tools
+View Sample
+
+Section 6.13. Summary
+View Sample
+Chapter 7. Reading and Writing Data
+View Sample
+
+Section 7.1. Overview
+View Sample
+
+Section 7.2. Query Differences Between RDBMS and Cassandra
+View Sample
+
+Section 7.3. Basic Write Properties
+View Sample
+
+Section 7.4. Consistency Levels
+View Sample
+
+Section 7.5. Basic Read Properties
+View Sample
+
+Section 7.6. The API
+View Sample
+
+Section 7.7. Setup and Inserting Data
+View Sample
+
+Section 7.8. Using a Simple Get
+View Sample
+
+Section 7.9. Seeding Some Values
+View Sample
+
+Section 7.10. Slice Predicate
+View Sample
+
+Section 7.11. Get Range Slices
+View Sample
+
+Section 7.12. Multiget Slice
+View Sample
+
+Section 7.13. Deleting
+View Sample
+
+Section 7.14. Batch Mutates
+View Sample
+
+Section 7.15. Programmatically Defining Keyspaces and Column Families
+View Sample
+
+Section 7.16. Summary
+View Sample
+Chapter 8. Clients
+View Sample
+
+Section 8.1. Overview
+View Sample
+
+Section 8.2. Basic Client API
+View Sample
+
+Section 8.3. Thrift
+View Sample
+
+Section 8.4. Avro
+View Sample
+
+Section 8.5. A Bit of Git
+View Sample
+
+Section 8.6. Connecting Client Nodes
+View Sample
+
+Section 8.7. Web Console (Spring)
+View Sample
+
+Section 8.8. Hector (Java)
+View Sample
+
+Section 8.9. HectorSharp (C#)
+View Sample
+
+Section 8.10. Chiton (Python)
+View Sample
+
+Section 8.11. Pelops (Java)
+View Sample
+
+Section 8.12. Kundera
+View Sample
+
+Section 8.13. Fauna (Ruby)
+View Sample
+
+Section 8.14. Summary
+View Sample
+Chapter 9. Monitoring
+View Sample
+
+Section 9.1. Overview
+View Sample
+
+Section 9.2. Logging
+View Sample
+
+Section 9.3. Overview of JMX and MBeans
+View Sample
+
+Section 9.4. Interacting with Cassandra via JMX
+View Sample
+
+Section 9.5. Cassandra's MBeans
+View Sample
+
+Section 9.6. Custom Cassandra MBeans
+View Sample
+
+Section 9.7. Runtime Analysis Tools
+View Sample
+
+Section 9.8. Health Check
+View Sample
+
+Section 9.9. Summary
+View Sample
+Chapter 10. Maintenance
+View Sample
+
+Section 10.1. Overview
+View Sample
+
+Section 10.2. Getting Ring Information
+View Sample
+
+Section 10.3. Getting Statistics
+View Sample
+
+Section 10.4. Basic Maintenance
+View Sample
+
+Section 10.5. Snapshots
+View Sample
+
+Section 10.6. Load Balancing the Cluster
+View Sample
+
+Section 10.7. Decommissioning a Node
+View Sample
+
+Section 10.8. Updating Nodes
+View Sample
+
+Section 10.9. Using Cluster Tool
+View Sample
+Chapter 11. Performance Tuning
+View Sample
+
+Section 11.1. Overview
+View Sample
+
+Section 11.2. Data Storage
+View Sample
+
+Section 11.3. Reply Timeout
+View Sample
+
+Section 11.4. Commit Logs
+View Sample
+
+Section 11.5. Memtables
+View Sample
+
+Section 11.6. Concurrency
+View Sample
+
+Section 11.7. Caching
+View Sample
+
+Section 11.8. Buffer Sizes
+View Sample
+
+Section 11.9. Using the Python Stress Test
+View Sample
+
+Section 11.10. Startup and JVM Settings
+View Sample
+
+Section 11.11. Summary
+View Sample
+Chapter 12. Integrating Hadoop
+View Sample
+
+Section 12.1. Overview
+View Sample
+
+Section 12.2. What is Hadoop?
+View Sample
+
+Section 12.3. Working with MapReduce
+View Sample
+
+Section 12.4. Running the Word Count Example
+View Sample
+
+Section 12.5. Tools Above MapReduce
+View Sample
+
+Section 12.6. Cluster Configuration
+View Sample
+
+Section 12.7. Use Cases
+View Sample
+
+Section 12.8. Summary
+View Sample
+Appendix A. The NoSQL Landscape
+View Sample
+
+Section A.1. Introduction
+View Sample
+
+Section A.2. Non-Relational Databases
+View Sample
+
+Section A.3. Object Databases
+View Sample
+
+Section A.4. XML Databases
+View Sample
+
+Section A.5. Document-Oriented Databases
+View Sample
+
+Section A.6. Graph Databases
+View Sample
+
+Section A.7. Key-Value Stores / Distributed Hashtables
+View Sample
+
+Section A.8. Columnar Databases
+View Sample
+
+Section A.9. NoSQL Summary
+View Sample
+
+Section A.10. Summary
+View Sample
+Appendix B. Cassandra Glossary
+View Sample
+
+Section B.1. Glossary
+View Sample
+
+Colophon

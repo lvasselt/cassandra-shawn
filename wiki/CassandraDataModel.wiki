@@ -14,6 +14,8 @@ The basic concepts are:
 
 We'll start from the bottom up, moving from the leaves of Cassandra's data structure (columns) up to the root of the tree (the cluster).
 
+[http://cassandra-shawn.googlecode.com/files/Cassandra%20%E7%9A%84%E6%95%B0%E6%8D%AE%E6%A8%A1%E5%9E%8B%E5%9B%BE.gif]
+
 ==Columns==
 
 The column is the lowest/smallest increment of data. It's a tuple (triplet) that contains a name, a value and a timestamp.

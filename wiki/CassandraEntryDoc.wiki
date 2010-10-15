@@ -15,6 +15,10 @@ Facebook Cassandra Architecture and Design
 
  * [http://perspectives.mvdirona.com/2009/02/07/FacebookCassandraArchitectureAndDesign.aspx]
 
+How to use Cassandra in Twitter
+
+ * [http://blog.evanweaver.com/articles/2009/07/06/up-and-running-with-cassandra/]
+
 PPT展示
 
  * [http://www.slideshare.net/pablete/cassandra-for-rails]

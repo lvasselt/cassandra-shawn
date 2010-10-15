@@ -144,12 +144,12 @@ Alternatively, we could preface the status keys with the user key, which has les
 multi-blog schema
 
 Here's a another schema, suggested to me by Jonathan Ellis, the primary Cassandra maintainer. It's for a multi-tenancy blog platform:
-
+{{{
 <Keyspace Name="Multiblog">      
   <ColumnFamily CompareWith="TimeUUIDType" Name="Blogs" />
   <ColumnFamily CompareWith="TimeUUIDType" Name="Comments"/>
 </Keyspace>
-
+}}}
 Imagine we have a blog named 'The Cutest Kittens'. We will insert a row when the first post is made as follows:
 
 require 'rubygems'

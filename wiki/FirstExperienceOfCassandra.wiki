@@ -1,5 +1,5 @@
 #labels KickoffrunningCassandra
- * Install and start cassandra up following "README.txt".
+ # Install and start cassandra up following "README.txt".
 {{{
 shawny@ubuntu:~/software/apache-cassandra-0.6.5$ bin/cassandra -f
  INFO 08:09:40,826 JNA not found. Native methods will be disabled.
@@ -16,7 +16,7 @@ shawny@ubuntu:~/software/apache-cassandra-0.6.5$ bin/cassandra -f
  INFO 08:09:50,919 Cassandra starting up...
 }}}
 
- * Show the directory structure of "/var/log/cassandra" and "/var/lib/cassandra".
+ # Show the directory structure of "/var/log/cassandra" and "/var/lib/cassandra".
 {{{
 shawny@ubuntu:/var/log$ tree cassandra/
 cassandra/
@@ -39,7 +39,7 @@ cassandra/
 4 directories, 4 files
 }}}
 
- * Read and write some data using the command line.
+ # Read and write some data using the command line.
 {{{
 shawny@ubuntu:~/software/apache-cassandra-0.6.5$ bin/cassandra-cli --host localhost --port 9160
 Connected to: "Test Cluster" on localhost/9160
@@ -59,7 +59,7 @@ cassandra> get Keyspace1.Standard2['shawn']
 Returned 3 results.
 }}}
 
- * Check the Cassandra data directory again.
+ # Check the Cassandra data directory again.
 {{{
 shawny@ubuntu:/var/lib$ tree cassandra/
 cassandra/

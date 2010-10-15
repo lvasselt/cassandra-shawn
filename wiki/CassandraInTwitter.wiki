@@ -120,7 +120,7 @@ If this is confusing, don't worry. We'll now look at two example schemas in dept
 twitter schema
 
 Here is the schema definition we used for the demo, above. It is based on Eric Florenzano's Twissandra:
-
+{{{
 <Keyspace Name="Twitter">
   <ColumnFamily CompareWith="UTF8Type" Name="Statuses" />
   <ColumnFamily CompareWith="UTF8Type" Name="StatusAudits" />
@@ -130,7 +130,7 @@ Here is the schema definition we used for the demo, above. It is based on Eric F
   <ColumnFamily CompareWith="UTF8Type" Name="UserRelationships"
     CompareSubcolumnsWith="TimeUUIDType" ColumnType="Super" />
 </Keyspace>
-
+}}}
 What could be in StatusRelationships? Maybe a list of users who favorited the tweet? Having a super column family for both record types lets us index each direction of whatever many-to-many relationships we come up with.
 
 Here's how the data is organized:

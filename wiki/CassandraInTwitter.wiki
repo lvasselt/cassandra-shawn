@@ -136,7 +136,6 @@ What could be in StatusRelationships? Maybe a list of users who favorited the tw
 Here's how the data is organized:
 
 [http://cassandra-shawn.googlecode.com/files/twitter.jpg]
-
 Cassandra lets you distribute the keys across the cluster either randomly, or in order, via the Partitioner option in the storage-conf.xml file.
 
 For the Twitter application, if we were using the order-preserving partitioner, all recent statuses would be stored on the same node. This would cause hotspots. Instead, we should use the random partitioner.

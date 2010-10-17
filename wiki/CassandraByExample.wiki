@@ -1,3 +1,4 @@
+#labels CassandraByExample
 Cassandra has received a lot of attention of late, and more people are now evaluating it for their organization. As these folks work to get up to speed, the shortcomings in our documentation become all the more apparent. Easily, the worst of these is explaining the data model to those with an existing background in relational databases.
 
 The problem is that Cassandra’s data model is different enough from that of a traditional database to readily cause confusion, and just as numerous as the misconceptions are the different ways that well intentioned people use to correct them.

@@ -24,3 +24,7 @@ PPT展示
  * [http://www.slideshare.net/pablete/cassandra-for-rails]
  * [http://www.slideshare.net/marin_dimitrov/nosql-databases-3584443]
  * [http://www.slideshare.net/benjaminblack/introduction-to-cassandra-replication-and-consistency]
+
+WIKI是王道
+
+[http://wiki.apache.org/cassandra/]

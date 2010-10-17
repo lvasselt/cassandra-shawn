@@ -182,3 +182,5 @@ If IRC is your thing you can join #cassandra on irc.freenode.net where you can c
 # memcached: More Cache = Less Cash!
 # Alternative Database Technology for the Cloud: There is No Silver Bullet   
 # How do you put a Database in the Cloud?
+
+Ref: [http://www.rackspacecloud.com/blog/2010/05/12/cassandra-by-example/]

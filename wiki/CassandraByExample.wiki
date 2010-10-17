@@ -80,13 +80,10 @@ One thing worth pointing out from the config snippet above is that in addition t
 ===What Are These Column Families?===
 
 It’s probably not immediately intuitive what all seven Twissandra column families are for, so let’s take a closer look at each.
-
     * User
-
 This is where users are stored, it is analogous to the user table in the SQL schema above. Each record stored in this column family will be keyed on a UUID and contain columns for username and password.
 
     * Username
-
 Looking up a user in the User column family above requires knowing that user’s key, but how do we find this UUID-based key when all we know is the username? With a relational database and the SQL schema above, we’d perform a SELECT on the users table with a predicate to match the username (WHERE username = ‘jericevans’). This won’t work with Cassandra for a couple of reasons.
 
 First off, a relational database will scan your table sequentially when performing a SELECT like this, and since records are distributed throughout a Cassandra cluster based on key, the equivalent could mean contacting more than one node (possibly many). However, even with all of the data on a single machine, there comes a point when such an operation will become inefficient with a relational database, making it necessary to index the username attribute. As mentioned earlier, Cassandra doesn’t currently support secondary indices like this.
@@ -94,21 +91,16 @@ First off, a relational database will scan your table sequentially when performi
 The answer is to create our own inverted index that maps readable usernames to the UUID-based key, and that is the purpose of this column family.
 
     * Friends
-
     * Followers
-
 The Friends and Followers column families will answer the questions, who is user X following?, and who is following user X?, respectively. Each is keyed on the unique user ID, with columns to track the corresponding relationships and the time they were created.
 
     * Tweet
-
 This is where the tweets themselves are stored. This column family stores records with unique keys (UUIDs), and columns for the user id, the body, and the time the tweet was added.
 
     * Userline
-
 This is where the timeline as it pertains to each user is stored. Records here consist of user ID keys, and columns to map a numeric timestamp to the unique tweet id in the Tweet column family.
 
     * Timeline
-
 Finally, this column family is similar to Userline, except that it stores the materialized view of friend tweets for each user.
 
 So, given the above column families, let’s step through some common operations and see how they would be applied.

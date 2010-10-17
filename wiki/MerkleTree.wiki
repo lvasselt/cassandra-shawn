@@ -14,3 +14,5 @@ Merkle Tree（MT）是一个非常容易理解的数据结构，简单来说就�
 在网络传输上，如果进行线性比对，每次必须将共有的key值范围内所有hash传输，但针对MT而言，是查到哪一层，获取哪一层需要的hash值，大大减小了传输数据量。（一个早期应用MT的例子便是在bt下载软件中，为了避免所有数据块的hash都必须存在torrent中导致tracker的巨大压力，从而使用MT这种数据结构，并且只需将根处hash存放到torrent中。）
 
 此外，与MT类似的数据结构，还包括线段树，这也是一个非常有趣的数据结构，有时间大家也可以稍作研究。
+
+Source: [http://ultimatearchitecture.net/index.php/2010/09/12/merkle-tree/]

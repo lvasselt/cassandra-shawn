@@ -6,7 +6,7 @@ The problem is that Cassandra’s data model is different enough from that of a 
 Some folks will describe the model as a map of maps, or in the case of super columns, a map of maps of maps. Often, these explanations are accompanied by visual aids that use a JSON-like notation to demonstrate. Others will liken column families to sparse tables, and others still as containers that hold collections of column objects. Columns are even sometimes referred to as 3-tuples. All of these fall short in my opinion.
 
 The problem is that it’s difficult to explain something new without using analogies, but confusing when the comparisons don’t hold up. I’m still hoping that someone will devise an elegant means of explaining this, but in the meantime I find concrete examples to be worth their weight in gold.
-Twitter
+==Twitter==
 
 Despite being an actual use-case for Cassandra, Twitter is also an excellent vehicle for discussion since it is well known and easily conceptualized. We know for example that, like most sites, user information (screen name, password, email address, etc), is kept for everyone and that those entries are linked to one another to map friends and followers. And, it wouldn’t be Twitter if it weren’t storing tweets, which in addition to the 140 characters of text are also associated with meta-data like timestamp and the unique id that we see in the URLs.
 
@@ -42,7 +42,7 @@ CREATE TABLE tweets (
 I’ve greatly oversimplified things here for the purpose of demonstration, but even with a trivial model like this, there is much to be taken for granted. For example, to accomplish data normalization like this in a practical way we need foreign-key constraints, and since we need to perform joins to combine data from multiple tables, we’ll need to be able to arbitrarily create indices on the appropriate attributes to make that efficient.
 
 But getting distributed systems right is a real challenge, and it never comes without trade-offs. This is true of Cassandra and is why the data model above won’t work for us. For starters, there is no referential integrity, and the lack of support for secondary indexing makes it difficult to efficiently perform joins, so you must denormalize. Put another way, you’re forced to think in terms of the queries you’ll perform and the results you expect since this is likely what the model will look like.
-Twissandra
+==Twissandra==
 
 So how would the model above be translated to Cassandra? Fortunately we need only look as far as Twissandra, a functional albeit minimalist Twitter clone written by Eric Florenzano, specifically to serve as a sample. So lets explore data modelling in Cassandra using Twitter and Twissandra as an example.
 Schema

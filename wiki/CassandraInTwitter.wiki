@@ -152,7 +152,7 @@ Here's a another schema, suggested to me by Jonathan Ellis, the primary Cassandr
 </Keyspace>
 }}}
 Imagine we have a blog named 'The Cutest Kittens'. We will insert a row when the first post is made as follows:
-
+{{{
 require 'rubygems'
 require 'cassandra'
 include SimpleUUID
@@ -162,41 +162,42 @@ multiblog = Cassandra.new('Multiblog')
 multiblog.insert(:Blogs, 'The Cutest Kittens',
   { UUID.new => 
     '{"title":"Say Hello to Buttons Cat","body":"Buttons is a cute cat."}' })
-
+}}}
 UUID.new generates a unique, sortable column name, and the JSON hash contains the post details. Let's insert another:
-
+{{{
 multiblog.insert(:Blogs, 'The Cutest Kittens',
   { UUID.new => 
     '{"title":"Introducing Commie Cat","body":"Commie is also a cute cat"}' })
-
+}}}
 Now we can find the latest post with the following query:
-
+{{{
 post = multiblog.get(:Blogs, 'The Cutest Kittens', :reversed => true).to_a.first
-
+}}}
 On our website, we can build links based on the readable representation of the UUID:
-
+{{{
 guid = post.first.to_guid
 # => "b06e80b0-8c61-11de-8287-c1fa647fd821"
-
+}}}
 If the user clicks this string in a permalink, our app can find the post directly via:
-
+{{{
 multiblog.get(:Blogs, 'The Cutest Kittens', :start => UUID.new(guid), :count => 1)
-
+}}}
 For comments, we'll use the post UUID as the outermost key:
-
+{{{
 multiblog.insert(:Comments, guid,
   {UUID.new => 'I like this cat. - Evan'})
 multiblog.insert(:Comments, guid, 
   {UUID.new => 'I am cuter. - Buttons'})
-
+}}}
 Now we can get all comments (oldest first) for a post by calling:
-
+{{{
 multiblog.get(:Comments, guid)
-
+}}}
 We could paginate them by passing :start with a UUID. See this presentation to learn more about token-based pagination.
 
 We have sidestepped two problems with this data model: we don't have to maintain separate indexes for any lookups, and the posts and comments are stored in separate files, where they don't cause as much write contention. Note that we didn't need to use any super columns, either.
-storage layout and api comparison
+
+===storage layout and api comparison===
 
 The storage strategy for Cassandra's standard model is the same as BigTable's. Here's a comparison chart:
 

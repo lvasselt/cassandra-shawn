@@ -20,7 +20,7 @@ Some other features that help put Cassandra above the competition :
     * List datastructures: super columns add a 5th dimension to the hybrid model, turning columns into lists. This is very handy for things like per-user indexes.
     * Distributed writes: you can read and write any data to anywhere in the cluster at any time. There is never any single point of failure.
 
-installation
+===installation===
 
 You need a Unix system. If you are using Mac OS 10.5, all you need is Git. Otherwise, you need to install Java 1.6, Git 1.6, Ruby, and Rubygems in some reasonable way.
 
@@ -45,7 +45,7 @@ The above script boots the server with a schema that we can interact with. Open 
 irb
 
 In the irb prompt, require the library:
-
+{{{
 require 'rubygems'
 require 'cassandra'
 include SimpleUUID
@@ -64,12 +64,12 @@ twitter.insert(:Statuses, '1', tweet1)
 
 tweet2 = {'text' => '@evan Zzzz....', 'user_id' => '5', 'reply_to_id' => '8'}
 twitter.insert(:Statuses, '2', tweet2)
-
+}}}
 Notice that the two status records do not have all the same columns. Let's go ahead and connect them to our user record:
-
+{{{
 twitter.insert(:UserRelationships, '5', {'user_timeline' => {UUID.new => '1'}})
 twitter.insert(:UserRelationships, '5', {'user_timeline' => {UUID.new => '2'}})
-
+}}}
 The UUID.new call creates a collation key based on the current time; our tweet ids are stored in the values.
 
 Now we can query our user's tweets:

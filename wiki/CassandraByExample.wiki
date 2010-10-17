@@ -45,10 +45,10 @@ But getting distributed systems right is a real challenge, and it never comes wi
 ==Twissandra==
 
 So how would the model above be translated to Cassandra? Fortunately we need only look as far as Twissandra, a functional albeit minimalist Twitter clone written by Eric Florenzano, specifically to serve as a sample. So lets explore data modelling in Cassandra using Twitter and Twissandra as an example.
-Schema
+===Schema===
 
 Cassandra is considered a schema-less data-store, but it is necessary to perform some configuration specific to your application. Twissandra comes with a sample configuration for Cassandra that should Just Work, but it’s worth taking some time to look at the specific aspects related to the data model.
-Keyspaces
+===Keyspaces===
 
 Keyspaces are the upper-most namespace in Cassandra and typically you’ll see exactly one for each application. In future versions of Cassandra, keyspaces will be created dynamically similar to how you create databases on an RDBMS server, but for 0.6 and before, these are defined in the main configuration file like so:
 {{{
@@ -58,7 +58,7 @@ Keyspaces are the upper-most namespace in Cassandra and typically you’ll see e
   </Keyspace>
 </Keyspaces>
 }}}
-Column Families
+===Column Families===
 
 For each keyspace there are one or more column families. A column family is the namespace used to associate records of a similar kind. Cassandra gives you record-level atomicity within a column family when making writes, and queries against them are efficient. These qualities are important to keep in mind when designing your data model, as you’ll see in the discussion that follows.
 
@@ -77,7 +77,7 @@ Like keyspaces, the column families themselves are defined in the main config, t
 </Keyspaces>
 }}}
 One thing worth pointing out from the config snippet above is that in addition to a name, column family definitions also specify a comparator. This highlights another important distinction from traditional databases in that the order records are sorted is a design decision, and not something that can easily be changed later.
-What Are These Column Families?
+===What Are These Column Families?===
 
 It’s probably not immediately intuitive what all seven Twissandra column families are for, so let’s take a closer look at each.
 
@@ -112,8 +112,8 @@ This is where the timeline as it pertains to each user is stored. Records here c
 Finally, this column family is similar to Userline, except that it stores the materialized view of friend tweets for each user.
 
 So, given the above column families, let’s step through some common operations and see how they would be applied.
-Tying It All Together
-Adding a new user
+==Tying It All Together==
+===Adding a new user===
 
 First off, new users will need a way to sign up for an account, and when they do we’ll need to add them to our Cassandra database. For Twissandra, that would look something like:
 {{{
@@ -131,7 +131,7 @@ Twissandra is written in Python and uses Pycassa for client access, so the upper
 Also, this is a good time to mention that this and the code samples that follow aren’t verbatim snippets from Twissandra, I’ve changed them to be more concise and self-contained. For example, in the code above, it wouldn’t make sense to assign variables for username and password, in a web application these would be taken from the form elements on a sign-up page.
 
 Getting back to the sample, there are two different Cassandra write (insert()) operations taking place here, one to create a new record in the User column family and one to update the inverted index that maps human readable usernames to UUID keys. In both cases, the arguments to insert() are the key that we’ll later use to look up the records, and a map containing the column names and values.
-Following a friend
+===Following a friend===
 {{{
 frienduuid = 'a4a70900-24e1-11df-8924-001ff3591711'
  
@@ -139,7 +139,7 @@ FRIENDS.insert(useruuid, {frienduuid: time.time()})
 FOLLOWERS.insert(frienduuid, {useruuid: time.time()})
 }}}
 Again we perform two different insert() operations, this time to add someone to our list of friends, and to track the inverse of that relationship, the addition of a new follower on the target user.
-Tweeting
+===Tweeting===
 {{{
 tweetuuid = str(uuid())
 body = '@ericflo thanks for Twissandra, it helps!'
@@ -162,13 +162,13 @@ Additionally, the user’s Userline is updated to map the time of the tweet to i
 Finally, Timeline is updated with columns that map time to tweet ID for this user and each of their followers.
 
 One thing worth paying particular attention to here is that the timestamp used is a long (64 bit), and when it is given as a column name, it’s packed as a binary value in network byte-order. This is because the Userline and Timeline column families use a LongType comparator, allowing us to query for ranges of columns using numeric predicates, with results that are sorted numerically.
-Getting a user’s tweets
+===Getting a user’s tweets===
 {{{
-timeline = USERLINE.get(useruuid, column_reversed=True)
-tweets = TWEET.multiget(timeline.values())
+userline = USERLINE.get(useruuid, column_reversed=True)
+tweets = TWEET.multiget(userline.values())
 }}}
 Here we’re retrieving the tweets for a user, first by obtaining a list of the IDs from Userline, and then fetching them from the Tweet column family with a multiget(). These results will be sorted by the numeric date/time, and in descending order since Userline uses a LongType comparator and reversed was set to True.
-Retrieving the timeline for a user
+===Retrieving the timeline for a user===
 {{{
 start = request.GET.get('start')
 limit = NUM_PER_PAGE
@@ -178,7 +178,7 @@ column_count=limit, column_reversed=True)
 tweets = TWEET.multiget(timeline.values())
 }}}
 Just like the previous example, here we’re retrieving a list of tweet IDs, this time from Timeline. However, this time we’re also using start and limit to control the range of columns returned. This is handy for paging through the results.
-So What Next?
+==So What Next?==
 
 Hopefully this is enough to give you the general idea. Again, I took some liberties with the code samples and omitted some operations in an effort to be concise, so now might be a good time to check out the Twissandra source and take a deeper dive. There are a number of obvious features like retweet and lists, that were intentionally left unimplemented to serve as exercises for the initiated. If you’re comfortable with Python and Django, you might try your hand at one of those.
 

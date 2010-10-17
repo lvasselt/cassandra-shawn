@@ -73,13 +73,14 @@ twitter.insert(:UserRelationships, '5', {'user_timeline' => {UUID.new => '2'}})
 The UUID.new call creates a collation key based on the current time; our tweet ids are stored in the values.
 
 Now we can query our user's tweets:
-
+{{{
 timeline = twitter.get(:UserRelationships, '5', 'user_timeline', :reversed => true)
 timeline.map { |time, id| twitter.get(:Statuses, id, 'text') }
 # => ["@evan Zzzz....", "Nom nom nom nom nom."]
-
+}}}
 Two tweet bodies, returned in recency order—not bad at all. In a similar fashion, each time a user tweets, we could loop through their followers and insert the status key into their follower's home_timeline relationship, for handling general status delivery.
-the data model
+
+===the data model===
 
 Cassandra is best thought of as a 4 or 5 dimensional hash. The usual way to refer to a piece of data is as follows: a keyspace, a column family, a key, an optional super column, and a column. At the end of that chain lies a single, lonely value.
 
@@ -94,22 +95,22 @@ After the column family level, the organization can diverge—this is a feature 
     * A column: this is a tuple with a name and a value. Good columns might be 'screen_name' => 'lisa4718' or 'Google' => 'http://google.com'.
 
       It is common to not specify a particular column name when requesting a key; the response will then be an ordered hash of all columns. For example, querying for (:Users, '174927') might return:
-
+{{{
       {'name' => 'Lisa Jones', 
        'gender' => 'f', 
        'screen_name' => 'lisa4718'}
-
+}}}
       In this case, name, gender, and screen_name are all column names. Columns are defined on the fly, and different records can have different sets of column names, even in the same keyspace and column family. This lets you use the column name itself as either structure or data. Columns can be stored in recency order, or alphabetical by name, and all columns keep a timestamp.
     * A super column: this is a named list. It contains standard columns, stored in recency order.
 
       Say Lisa Jones has bookmarks in several categories. Querying (:UserBookmarks, '174927') might return:
-
+{{{
       {'work' => {
           'Google' => 'http://google.com', 
           'IBM' => 'http://ibm.com'}, 
        'todo': {...}, 
        'cooking': {...}}
-
+}}}
       Here, work, todo, and cooking are all super column names. They are defined on the fly, and there can be any number of them per row. :UserBookmarks is the name of the super column family. Super columns are stored in alphabetical order, with their sub columns physically adjacent on the disk.
 
 Super columns and standard columns cannot be mixed at the same (4th) level of dimensionality. You must define at startup which column families contain standard columns, and which contain super columns with standard columns inside them.

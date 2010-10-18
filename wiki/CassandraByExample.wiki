@@ -92,7 +92,7 @@ The answer is to create our own inverted index that maps readable usernames to t
 
     * Friends
     * Followers
-The Friends and Followers column families will answer the questions, who is user X following?, and who is following user X?, respectively. Each is keyed on the unique user ID, with columns to track the corresponding relationships and the time they were created.
+The Friends and Followers column families will answer the questions, who is user X following?(X => N), and who is following user X(N => X)?, respectively. Each is keyed on the unique user ID, with columns to track the corresponding relationships and the time they were created.
 
     * Tweet
 This is where the tweets themselves are stored. This column family stores records with unique keys (UUIDs), and columns for the user id, the body, and the time the tweet was added.

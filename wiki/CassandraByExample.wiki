@@ -98,10 +98,10 @@ The Friends and Followers column families will answer the questions, who is user
 This is where the tweets themselves are stored. This column family stores records with unique keys (UUIDs), and columns for the user id, the body, and the time the tweet was added.
 
     * Userline
-This is where the timeline as it pertains to each user is stored. Records here consist of user ID keys, and columns to map a numeric timestamp to the unique tweet id in the Tweet column family.
+This is where the timeline as it pertains to each user is stored. Records here consist of user ID keys, and columns to map a numeric timestamp to the unique tweet id in the Tweet column family.（自己发的tweet）
 
     * Timeline
-Finally, this column family is similar to Userline, except that it stores the materialized view of friend tweets for each user.
+Finally, this column family is similar to Userline, except that it stores the materialized view of friend tweets for each user.（我感兴趣的user发的tweet）
 
 So, given the above column families, let’s step through some common operations and see how they would be applied.
 ==Tying It All Together==

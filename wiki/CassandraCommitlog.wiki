@@ -1,0 +1,14 @@
+#labels CassandraCommitlog
+大致介绍了一下Cassandra的存储机制，通过将最新的写操作放在内存中的Memtable，然后定期刷新到磁盘持久化为 SSTable，Cassandra将随机写操作转换成了顺序写操作，这可以提升IO性能。
+
+最新写入的脏数据是在内存Memtable表中，因此必须有机制来确保异常情况下，能够将内存中的数据恢复出来。和关系型数据库系统一样，Cassandra也是采用的先写日志再写数据的方式，其日志称之为Commitlog。
+
+和Memtable/SSTable不一样的是，Commitlog是server级别的，不是Column Family级别的 。每个Commitlog文件的大小是固定的，称之为一个Commitlog Segment，目前版本(0.7)中，这个大小是128MB，这是硬编码在代码(src\java\org\apache\cassandra \db\Commitlog.java)中的。当一个Commitlog文件写满以后，会新建一个的文件。当旧的Commitlog文件不再需要时，会自动清除。
+
+每个Commitlog文件(Segment)都有一个固定大小（大小根据Column Family的数目而定）的CommitlogHeader 结构，其中有两个重要的数组，每一个Column Family在这两个数组中都存在一个对应的元素。其中一个是位图数组(BitSet dirty )，如果Column Family对应的Memtable中有脏数据，则置为1，否则为0，这在恢复的时候可以指出哪些Column Family是需要利用Commitlog进行恢复的。另外一个是整数数组(int[] lastFlushedAt )，保存的是Column Family在上一次Flush时日志的偏移位置，恢复时则可以从这个位置读取Commitlog记录。通过这两个数组结构，Cassandra可以在异常重启服务的时候根据持久化的SSTable和Commitlog重构内存中Memtable的内容，也就是类似Oracle等关系型数据库的实例恢复。
+
+当Memtable flush到磁盘的SStable时，会将所有Commitlog文件的dirty数组对应的位清零，而在Commitlog达到大小限制创建新的文件时，dirty数组会从上一个文件中继承过来。如果一个Commitlog文件的dirty数组全部被清零，则表示这个Commitlog在恢复的时候不再需要，可以被清除。因此，在恢复的时候，所有的磁盘上存在的Commitlog文件都是需要的。
+
+参考文章：
+[1].http://wiki.apache.org/cassandra/ArchitectureCommitLog 
+[2].http://blog.csdn.net/starxu85/archive/2010/03/20/5399180.aspx

@@ -1,4 +1,18 @@
 #labels Gossip协议
+The concept of gossip communication can be illustrated by the analogy of office workers spreading rumors. Ted comments to Sally that he believes Fred dyes his mustache. Sally tells Jill, while Ted repeats the idea to Sam. As people move around and repeat the rumor, the number of individuals who have heard the rumor roughly doubles with each "step". The doubling is an approximation that assumes employees communicate at a constant rate, and it doesn't account for gossiping twice to the same person. (Perhaps Ted tries to tell his story to Mark, only to find that Mark already heard it from Jill). Computer systems typically implement this type of protocol with a form of random "peer selection": with a given frequency, each machine picks another machine at random and shares any hot rumors.
+
+The power of gossip lies in the robust spread of information. Even if Jill had trouble understanding Sally (perhaps she was whispering), she will probably run into someone else soon and can learn the news that way.
+
+Expressing these ideas in more technical terms, a gossip protocol is one that satisfies the following conditions:
+
+    * The core of the protocol involves periodic, pairwise, inter-process interactions.
+    * The information exchanged during these interactions is of bounded size.
+    * When agents interact, the state of at least one agent changes to reflect the state of the other. A gossip interaction does not occur when A pings B just to measure the response time, as this does not involve the transmittal of state between agents.
+    * Reliable communication is not assumed.
+    * The frequency of the interactions is low compared to typical message latencies so that the protocol costs are negligible.
+    * There is some form of randomness in the peer selection. Peers might be selected from the full set of nodes or from a smaller set of "neighbors".
+
+
 ==Gossip (State Transfer Model)==
 In a state transfer model, each replica maintain a vector clock as well as a state version tree where each state is neither > or < among each other (based on vector clock comparison). In other words, the state version tree contains all the conflicting updates.
 At query time, the client will attach its vector clock and the replica will send back a subset of the state tree which precedes the client's vector clock (this will provide monotonic read consistency). The client will then advance its vector clock by merging all the versions. This means the client is responsible to resolve the conflict of all these versions because when the client sends the update later, its vector clock will precede all these versions.

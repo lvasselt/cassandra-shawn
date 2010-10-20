@@ -1,0 +1,2 @@
+#labels Gossip协议
+了解什么是Gossip协议，能够写一个简单的总结。

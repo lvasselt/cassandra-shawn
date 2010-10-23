@@ -59,7 +59,7 @@ parts are combined within the failure detector (see Fig. 2). The output of the f
 of the triggered action, as well as its cost in terms of performance or resource usage.
 In contrast, accrual failure detectors provide a lower-level abstraction that avoids the interpretation of monitoring information (see Fig. 3). Some value is associated with each process that represents a suspicion level. This value is then left for the applications to interpret. For instance, by setting an appropriate threshold, applications can trigger suspicions and perform appropriate actions. Alternatively, applications can directly use the value output by the accrual failure detector as a parameter to their actions. Considering the example of master/worker described in the introduction, the master could decide to allocate the most urgent jobs only to worker processes with a low suspicion level.
 
-[http://cassandra-shawn.googlecode.com/file /structure_between_traditional_and_accural_failure.JPG]
+[http://cassandra-shawn.googlecode.com/file/structure_between_traditional_and_accural_failure.JPG]
 
 B. Implementation
 

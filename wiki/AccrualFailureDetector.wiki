@@ -44,3 +44,27 @@ q在tstart + △t时刻收到p的第一个heartbeat消息，经过△i间隔，p
  * Adaptive failure detectors
 
  * Accrual failure detectors
+
+The principle of accrual failure detectors is simple. Instead of outputting information of a boolean nature, accrual failure detectors output suspicion information on a continuous scale. Roughly speaking, the higher the value, the higher the chance that the monitored process has crashed.
+
+A. Architecture overview
+Conceptually, the implementation of failure detectors on the receiving side can be decomposed into
+three basic parts as follows.
+ # Monitoring. The failure detector gathers information from other processes, usually through the network, such as heartbeat arrivals or query-response delays.
+ # Interpretation. Monitoring information is used and interpreted, for instance to decide that a process should be suspected.
+ # Action. Actions are executed as a response to triggered suspicions. This is normally done within applications.
+
+The main difference between traditional failure detectors and accrual failure detectors is which component of the system does what part of failure detection. In traditional timeout-based implementations of failure detectors, the monitoring and interpretation
+parts are combined within the failure detector (see Fig. 2). The output of the failure detector is of boolean nature; trust or suspect. An elapsing timeout is equated to suspecting the monitored process, that is, the monitoring information is already being interpreted. Applications cannot do any interpretation, and thus are left with what to do with the suspicion. Unfortunately, suspicion tradeoffs largely depend on the nature
+of the triggered action, as well as its cost in terms of performance or resource usage.
+In contrast, accrual failure detectors provide a lower-level abstraction that avoids the interpretation of monitoring information (see Fig. 3). Some value is associated with each process that represents a suspicion level. This value is then left for the applications to interpret. For instance, by setting an appropriate threshold, applications can trigger suspicions and perform appropriate actions. Alternatively, applications can directly use the value output by the accrual failure detector as a parameter to their actions. Considering the example of master/worker described in the introduction, the master could decide to allocate the most urgent jobs only to worker processes with a low suspicion level.
+
+[http://cassandra-shawn.googlecode.com/file /structure_between_traditional_and_accural_failure.JPG]
+
+B. Implementation
+
+[http://cassandra-shawn.googlecode.com/files/accural_failure_cal3.JPG]
+
+[http://cassandra-shawn.googlecode.com/files/accural_failure_cal1.JPG]
+
+[http://cassandra-shawn.googlecode.com/files/accural_failure_cal2.JPG]

@@ -1,0 +1,45 @@
+#labels gossipfailuredetector
+利用gossip + The Phi Accrual Failure Detector实现的这部分。
+下面这些文件描述信息只包含重要的部分！
+
+ * ApplicationState.java
+{{{
+定义了一个ApplicationState枚举类型
+}}}
+ * EndpointState.java
+{{{
+volatile HeartBeatState hbState_;
+final Map<ApplicationState, VersionedValue> applicationState_;
+/* fields below do not get serialized */
+volatile long updateTimestamp_;
+volatile boolean isAlive_;
+volatile boolean isAGossiper_;
+volatile boolean hasToken_;
+
+除了上面这些属性以外，这个文件包含一个类型为EndpointStateSerializer的serializer_属性，
+它包含两个方法：
+serialize：按照下面这个序列组织message 
+
+HeartBeatState(generation_, version_)，size, [ApplicationState， VersionedValue(value, version)] ...
+
+deserialize: 按照serialize的格式解析收到的message
+
+}}}
+ * FailureDetector.java
+ * FailureDetectorMBean.java
+ * GossipDigest.java
+ * GossipDigestAck2Message.java
+ * GossipDigestAck2VerbHandler.java
+ * GossipDigestAckMessage.java
+ * GossipDigestAckVerbHandler.java
+ * GossipDigestSynMessage.java
+ * GossipDigestSynVerbHandler.java
+ * Gossiper.java
+ * HeartBeatState.java
+ * IEndpointStateChangeSubscriber.java
+ * IFailureDetectionEventListener.java
+ * IFailureDetector.java
+ * IFailureNotification.java
+ * PureRandom.java
+ * VersionedValue.java
+ * VersionGenerator.java

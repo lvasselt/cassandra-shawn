@@ -193,7 +193,7 @@ public String getAllEndpointStates();
 private Map<InetAddress, ArrivalWindow> arrivalSamples_ = new Hashtable<InetAddress, ArrivalWindow>();
 private List<IFailureDetectionEventListener> fdEvntListeners_ = new ArrayList<IFailureDetectionEventListener>();
 
-其中ArrivalWindow包含连个fields:
+其中ArrivalWindow包含两个fields:
 private double tLast_ = 0L;
 private BoundedStatsDeque arrivalIntervals_;
 

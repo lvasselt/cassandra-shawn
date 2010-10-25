@@ -242,12 +242,18 @@ Map<InetAddress, EndpointState> endpointStateMap_ = new ConcurrentHashMap<InetAd
 
 }}}
 
- * GossipDigestAck2Message.java
- * GossipDigestAck2VerbHandler.java
+ * GossipDigestSynMessage.java
+[http://cassandra-shawn.googlecode.com/files/gossipSynMessage.jpg]
+
+ * GossipDigestSynVerbHandler.java
+
  * GossipDigestAckMessage.java
  * GossipDigestAckVerbHandler.java
- * GossipDigestSynMessage.java
- * GossipDigestSynVerbHandler.java
+
+ * GossipDigestAck2Message.java
+ * GossipDigestAck2VerbHandler.java
+
+
 
 
  * PureRandom.java

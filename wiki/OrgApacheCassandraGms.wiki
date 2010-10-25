@@ -252,8 +252,23 @@ Map<InetAddress, EndpointState> endpointStateMap_ = new ConcurrentHashMap<InetAd
 
  * GossipDigestAck2Message.java
  * GossipDigestAck2VerbHandler.java
+{{{
 
-
-
+     Gossiper                                                       Gossipee
+     --------                                                       ---------
+         \                                                           
+          \                                                            
+           \             GossipDigestSynMessage                
+            \----------------------------------------------->  GossipDigestSynVerbHandler
+                        (GossipDigestList:request)                      /
+                                                                       /
+                                     GossipDigestAckMessage           /
+GossipDigestAckVerbHandler  <----------------------------------------/
+          \               (GossipDigestList:request, EtStateMap:response)
+           \
+            \          GossipDigestAck2Message
+             \-------------------------------------------> GossipDigestAck2VerbHandler
+                        (EtStateMap: response)
+}}}
 
  * PureRandom.java

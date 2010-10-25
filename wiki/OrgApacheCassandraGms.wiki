@@ -181,7 +181,27 @@ public String getAllEndpointStates();
 
  * FailureDetector.java
 {{{
+/**
+ * This FailureDetector is an implementation of the paper titled
+ * "The Phi Accrual Failure Detector" by Hayashibara. 
+ * Check the paper and the <i>IFailureDetector</i> interface for details.
+ */
+
 这个类实现了上面两个接口IFailureDetector, FailureDetectorMBean的方法
+
+下面这两个属性，我觉得很重要：
+private Map<InetAddress, ArrivalWindow> arrivalSamples_ = new Hashtable<InetAddress, ArrivalWindow>();
+private List<IFailureDetectionEventListener> fdEvntListeners_ = new ArrayList<IFailureDetectionEventListener>();
+
+其中ArrivalWindow包含连个fields:
+private double tLast_ = 0L;
+private BoundedStatsDeque arrivalIntervals_;
+
+其中方法最重要当然就是：
+public void report(InetAddress ep); // 数据采样
+public void interpret(InetAddress ep); // 分析采样数据
+public void registerFailureDetectionEventListener(IFailureDetectionEventListener listener); // gossiper注册自己的convict
+
 }}}
 
  * GossipDigestAck2Message.java

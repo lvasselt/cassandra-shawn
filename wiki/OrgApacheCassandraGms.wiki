@@ -204,11 +204,50 @@ public void registerFailureDetectionEventListener(IFailureDetectionEventListener
 
 }}}
 
+ * Gossiper.java
+{{{
+/**
+ * This module is responsible for Gossiping information for the local endpoint. This abstraction
+ * maintains the list of live and dead endpoints. Periodically i.e. every 1 second this module
+ * chooses a random node and initiates a round of Gossip with it. A round of Gossip involves 3
+ * rounds of messaging. For instance if node A wants to initiate a round of Gossip with node B
+ * it starts off by sending node B a GossipDigestSynMessage. Node B on receipt of this message
+ * sends node A a GossipDigestAckMessage. On receipt of this message node A sends node B a
+ * GossipDigestAck2Message which completes a round of Gossip. This module as and when it hears one
+ * of the three above mentioned messages updates the Failure Detector with the liveness information.
+ */
+
+这个类实现了接口IFailureDetectionEventListener， 下面这些属性很关键：
+
+/* subscribers for interest in EndpointState change */
+private List<IEndpointStateChangeSubscriber> subscribers_ = new CopyOnWriteArrayList<IEndpointStateChangeSubscriber>();
+
+/* live member set */
+private Set<InetAddress> liveEndpoints_ = new ConcurrentSkipListSet<InetAddress>(inetcomparator);
+
+/* unreachable member set */
+private Set<InetAddress> unreachableEndpoints_ = new ConcurrentSkipListSet<InetAddress>(inetcomparator);
+
+/* initial seeds for joining the cluster */
+private Set<InetAddress> seeds_ = new ConcurrentSkipListSet<InetAddress>(inetcomparator);
+
+/* map where key is the endpoint and value is the state associated with the endpoint */
+Map<InetAddress, EndpointState> endpointStateMap_ = new ConcurrentHashMap<InetAddress, EndpointState>();
+
+/* map where key is endpoint and value is timestamp when this endpoint was removed from
+ * gossip. We will ignore any gossip regarding these endpoints for Streaming.RING_DELAY time
+ * after removal to prevent nodes from falsely reincarnating during the time when removal
+ * gossip gets propagated to all nodes */
+ Map<InetAddress, Long> justRemovedEndpoints_ = new ConcurrentHashMap<InetAddress, Long>();
+
+}}}
+
  * GossipDigestAck2Message.java
  * GossipDigestAck2VerbHandler.java
  * GossipDigestAckMessage.java
  * GossipDigestAckVerbHandler.java
  * GossipDigestSynMessage.java
  * GossipDigestSynVerbHandler.java
- * Gossiper.java
+
+
  * PureRandom.java

@@ -1,5 +1,5 @@
 #labels gossipfailuredetector
-利用gossip + The Phi Accrual Failure Detector实现的这部分。
+利用gossip + The Phi Accrual Failure Detector实现的这部分(*把你比我新的消息或者我没有的消息告诉我，我把比你新的或者你没有的消息告诉你*)。
 下面这些文件描述信息只包含重要的部分！
 
  * VersionGenerator.java

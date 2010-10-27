@@ -27,15 +27,15 @@ A: [http://www.google.com.hk/ggblog/googlechinablog/2007/07/bloom-filter_7469.ht
 
 ----------------
 
-In Cassandra, the bloom filter was implement in the following four java files which packages is"org.apache.cassandra.utils;".
+*In Cassandra, the bloom filter was implemented in the following four java files which packages is "org.apache.cassandra.utils".*
 
 
-BitSetSerializer.java
+ * BitSetSerializer.java
 {{{
 主要提供了serialize/deserialize两个方法
 }}}
 
-BloomCalculations.java
+ * BloomCalculations.java
 {{{
 在读这个文件的源代码之前先要阅读下面说明中的paper，那里面主要是根据一个表选择bloom filter相关的两个参数，一个是每一个element有多少个bucket，另外一个就是要使用多少个hash函数。
 /**
@@ -110,7 +110,7 @@ public static BloomSpecification computeBloomSpec(int bucketsPerElement);
 public static BloomSpecification computeBloomSpec(int maxBucketsPerElement, double maxFalsePosProb)
 }}}
 
-Filter.java
+ * Filter.java
 {{{
 这个是一个抽象类，里面包含如下方法：
 int getHashCount(); // bloom filter 使用了多少个hash 函数
@@ -138,7 +138,7 @@ static int[] getHashBuckets(byte[] b, int hashCount, int max)
 }
 }}}
 
-BloomFilter
+ * BloomFilter.java
 {{{
 这类实现了上面的Filter，所以需要实现其没有实现的抽象方法
 private BitSet filter_;

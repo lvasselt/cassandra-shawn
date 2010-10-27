@@ -20,3 +20,5 @@ A: [http://www.google.com.hk/ggblog/googlechinablog/2007/07/bloom-filter_7469.ht
 布隆过滤器的好处在于快速，省空间。但是有一定的误识别率。常见的补救办法是在建立一个小的白名单，存储那些可能别误判的邮件地址。
 
 也可以看一下：[http://www.hellodba.net/2009/04/bloom_filter.html]
+
+[http://pages.cs.wisc.edu/~cao/papers/summary-cache/node8.html]

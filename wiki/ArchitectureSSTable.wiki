@@ -10,3 +10,193 @@ SSTables have 3 separate files created, and are per column-family.
 When adding a new key to an SSTable here are the steps it goes through. All keys are sorted before writing.
 [http://cassandra-shawn.googlecode.com/files/Sorted%20String%20Table1.JPG]
 [http://cassandra-shawn.googlecode.com/files/Sorted%20String%20Table2.JPG]
+
+-------------------------
+In "org.apache.cassandra.io.sstable":
+
+ * BloomFilterTracker.java
+
+ * Descriptor.java
+{{{
+/**
+ * A SSTable is described by the keyspace and column family it contains data
+ * for, a generation (where higher generations contain more recent data) and
+ * an alphabetic version string.
+ *
+ * A descriptor can be marked as temporary, which influences generated filenames.
+ */
+public static final String LEGACY_VERSION = "a";
+public static final String CURRENT_VERSION = "e";
+
+public final File directory;
+public final String version;
+public final String ksname;
+public final String cfname;
+public final int generation;
+public final boolean temporary;
+private final int hashCode;
+
+public final boolean hasStringsInBloomFilter;
+public final boolean hasIntRowSize;
+public final boolean hasEncodedKeys;
+public final boolean isLatestVersion;
+
+方法：
+/**
+ * @param suffix A component suffix, such as 'Data.db'/'Index.db'/etc
+ * @return A filename for this descriptor with the given suffix.
+ *
+ * eg: directory/column family name-tmp-version-generation-suffix
+                 ==================             ========== ======
+ *     suffix such as "Data.db", "Index.db" ... 
+ */
+public String filenameFor(String suffix)
+
+/**
+ * Filename of the form "<ksname>/<cfname>-[tmp-][<version>-]<gen>-<component>"
+ *                       ======== =============================================
+ *                      directory                  name
+ * @return A Descriptor for the SSTable, and the Component remainder.
+ */
+static Pair<Descriptor,String> fromFilename(File directory, String name)
+
+/**
+ * @return True if the given version string is not empty, and
+ * contains all lowercase letters, as defined by java.lang.Character.
+ */
+static boolean versionValidate(String ver)
+}}}
+
+ * Component.java
+{{{
+/**
+ * SSTables are made up of multiple components in separate files. Components are
+ * identified by a type and an id, but required unique components (such as the Data
+ * and Index files) may have implicit ids assigned to them.
+ */
+
+type: 
+// the base data for an sstable: the remaining components can be regenerated
+// based on the data component
+DATA("Data.db"),
+// index of the row keys with pointers to their positions in the data file
+PRIMARY_INDEX("Index.db"),
+// serialized bloom filter for the row keys in the sstable
+FILTER("Filter.db"),
+// 0-length file that is created when an sstable is ready to be deleted
+COMPACTED_MARKER("Compacted"),
+// statistical metadata about the content of the sstable
+STATS("Statistics.db"),
+// a bitmap secondary index: many of these may exist per sstable
+BITMAP_INDEX("Bitidx.db");
+
+/**
+ * Filename of the form "<ksname>/<cfname>-[tmp-][<version>-]<gen>-<component>",
+ * where <component> is of the form "[<id>-]<component>".
+ * @return A Descriptor for the SSTable, and a Component for this particular file.
+ * TODO move descriptor into Component field
+ */
+这个方法会调用Descriptor.java的fromFilename，取其left作为Descriptor，取其right构造Component
+public static Pair<Descriptor,Component> fromFilename(File directory, String name)
+}}}
+
+ * IndexHelper.java
+{{{
+/**
+ * Skip the bloom filter
+ * @param in the data input from which the bloom filter should be skipped
+ * @throws IOException
+ */
+public static void skipBloomFilter(DataInput in) throws IOException
+
+/**
+ * Skip the index
+ * @param file the data input from which the index should be skipped
+ * @throws IOException
+ */
+public static void skipIndex(DataInput file) throws IOException
+
+
+IndexInfo:
+
+    public final long width;
+    public final byte[] lastName;
+    public final byte[] firstName;
+    public final long offset;
+
+    public void serialize(DataOutput dos) throws IOException
+    {
+        FBUtilities.writeShortByteArray(firstName, dos);
+        FBUtilities.writeShortByteArray(lastName, dos);
+        dos.writeLong(offset);
+        dos.writeLong(width);
+    }
+
+/**
+ * Deserialize the index into a structure and return it
+ * @throws IOException
+ */
+读取Index.DB文件构造ArrayList<IndexInfo>
+public static ArrayList<IndexInfo> deserializeIndex(FileDataInput in) throws IOException
+
+/**
+ * Defreeze the bloom filter.
+ *
+ * @return bloom filter summarizing the column information
+ * @throws java.io.IOException
+ */
+读取Filter.DB文件构造BloomFilter
+public static BloomFilter defreezeBloomFilter(DataInput file) throws IOException
+  
+/**
+ * the index of the IndexInfo in which @name will be found.
+ * If the index is @indexList.size(), the @name appears nowhere.
+ */
+根据name名字在List<IndexInfo>二分查找name对应的IndexInfo
+public static int indexFor(byte[] name, List<IndexInfo> indexList, AbstractType comparator, boolean reversed)
+}}}
+
+ * IndexSummary.java
+{{{
+
+/**
+ * This is a simple container for the index Key and its corresponding position
+ * in the index file. Binary search is performed on a list of these objects
+ * to find where to start looking for the index entry containing the data position
+ * (which will be turned into a PositionSize object)
+ */
+public static class KeyPosition implements Comparable<KeyPosition>
+{
+    public final DecoratedKey key;
+    public final long indexPosition;
+
+    public KeyPosition(DecoratedKey key, long indexPosition)
+    {
+        this.key = key;
+        this.indexPosition = indexPosition;
+     }
+
+     ...................
+}
+
+private ArrayList<KeyPosition> indexPositions;
+private int keysWritten = 0;
+private long lastIndexPosition;
+
+// 将key和对应的indexPosition添加到ArrayList<KeyPosition>中
+public void maybeAddEntry(DecoratedKey decoratedKey, long indexPosition)
+
+     ArrayList<KeyPosition>                    index.DB                    data.DB
+
+key -------------------------> indexPosition ---------------> data offset ----------> value
+}}}
+
+ * KeyIterator.java
+ * ReducingKeyIterator.java
+ * SSTable.java
+ * SSTableDeletingReference.java
+ * SSTableIdentityIterator.java
+ * SSTableReader.java
+ * SSTableScanner.java
+ * SSTableTracker.java
+ * SSTableWriter.java

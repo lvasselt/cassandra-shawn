@@ -294,7 +294,6 @@ private IndexSummary.KeyPosition getIndexScanPosition(DecoratedKey decoratedKey)
 // 2) check the key cache
 // 3) see if the sampled index says it's impossible for the key to be present using IndexSummary
 // 4) scan the on-disk index, starting at the nearest sampled position
-public long getPosition(DecoratedKey decoratedKey, Operator op);
 //    4.1) read key & data position from index entry
 //    4.2) check if it is the expected key
 //         4.2.1) yes, add the (key, data position) into cache 

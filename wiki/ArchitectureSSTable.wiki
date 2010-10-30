@@ -279,7 +279,8 @@ void loadBloomFilter();
 4) add the key and index position into IndexSummary
 private void load(boolean recreatebloom);
 
-/** get the position in the index file to start scanning to find the 
+/** 
+ * get the position in the index file to start scanning to find the 
  * given key (at most indexInterval keys away) 
  */
 private IndexSummary.KeyPosition getIndexScanPosition(DecoratedKey decoratedKey);

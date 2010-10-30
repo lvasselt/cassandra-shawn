@@ -183,7 +183,11 @@ private ArrayList<KeyPosition> indexPositions;
 private int keysWritten = 0;
 private long lastIndexPosition;
 
-// 将key和对应的indexPosition添加到ArrayList<KeyPosition>中
+// 将key和对应的indexPosition添加到ArrayList<KeyPosition>中, 注意它不会把所有sstable中
+// 的key都添加IndexSummary中，而是把sstable中间隔为128的key放入，目前定义的间隔大小为
+// 128(public Integer index_interval = 128;)
+// 例如：把第一个key放入IndexSummary、把第128个key放入IndexSummary、把第256个key放入
+// IndexSummary .....
 public void maybeAddEntry(DecoratedKey decoratedKey, long indexPosition)
 
      ArrayList<KeyPosition>                    index.DB                    data.DB
@@ -261,7 +265,10 @@ append(DecoratedKey decoratedKey, byte[] value)
  */
 
 // 关键方法
-loadBloomFilter
+/**
+ * load the content of filter.DB into memory
+ */
+void loadBloomFilter();
 
 /**
  * Loads ifile, dfile and indexSummary, and optionally recreates the bloom filter.
@@ -270,7 +277,36 @@ loadBloomFilter
 2) estimate key count based on index length for bloom filter
 3) read index file, put the key into bloom filter if recreatebloom is true
 4) add the key and index position into IndexSummary
-private void load(boolean recreatebloom)
+private void load(boolean recreatebloom);
+
+/** get the position in the index file to start scanning to find the 
+ * given key (at most indexInterval keys away) 
+ */
+private IndexSummary.KeyPosition getIndexScanPosition(DecoratedKey decoratedKey);
+
+/**
+ * @param decoratedKey The key to apply as the rhs to the given Operator.
+ * @param op The Operator defining matching keys: the nearest key to the target matching the operator wins.
+ * @return The position in the data file to find the key, or -1 if the key is not present
+ */
+
+// 1) check the bloom filter, test if it is exist
+// 2) check the key cache
+// 3) see if the sampled index says it's impossible for the key to be present using IndexSummary
+// 4) scan the on-disk index, starting at the nearest sampled position
+public long getPosition(DecoratedKey decoratedKey, Operator op);
+//    4.1) read key & data position from index entry
+//    4.2) check if it is the expected key
+//         4.2.1) yes, add the (key, data position) into cache 
+public long getPosition(DecoratedKey decoratedKey, Operator op);
+
+/**
+ * Determine the minimal set of sections that can be extracted from this SSTable to cover the given ranges.
+ * @return A sorted list of (offset,end) pairs that cover the given ranges in the datafile for this SSTable.
+ * 
+ * range => Part<Long, Long> (offset, end)
+ */
+public List<Pair<Long,Long>> getPositionsForRanges(Collection<Range> ranges)
 
 }}}
 

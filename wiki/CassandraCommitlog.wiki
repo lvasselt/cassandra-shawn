@@ -12,3 +12,7 @@
 参考文章：
 [1].http://wiki.apache.org/cassandra/ArchitectureCommitLog 
 [2].http://blog.csdn.net/starxu85/archive/2010/03/20/5399180.aspx
+
+-----------------
+
+org.apache.cassandra.db.commitlog

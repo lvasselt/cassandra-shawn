@@ -19,6 +19,7 @@ org.apache.cassandra.db.commitlog (Commitlog-Current millisecond.log)
 
 CommitLogHeader.java
 {{{
+// 用一个map就代表了位图数组，整数数组的功能
 private Map<Integer, Integer> cfDirtiedAt; // position at which each CF was last flushed
 
 

@@ -15,4 +15,49 @@
 
 -----------------
 
-org.apache.cassandra.db.commitlog
+org.apache.cassandra.db.commitlog (Commitlog-Current millisecond.log)
+
+CommitLogHeader.java
+{{{
+
+}}}
+CommitLogSegment.java
+{{{
+}}}
+CommitLog.java
+{{{
+/*
+ * Commit Log tracks every write operation into the system. The aim
+ * of the commit log is to be able to successfully recover data that was
+ * not stored to disk via the Memtable. Every Commit Log maintains a
+ * header represented by the abstraction CommitLogHeader. The header
+ * contains a bit array and an array of longs and both the arrays are
+ * of size, #column families for the Table, the Commit Log represents.
+ *
+ * Whenever a ColumnFamily is written to, for the first time its bit flag
+ * is set to one in the CommitLogHeader. When it is flushed to disk by the
+ * Memtable its corresponding bit in the header is set to zero. This helps
+ * track which CommitLogs can be thrown away as a result of Memtable flushes.
+ * Additionally, when a ColumnFamily is flushed and written to disk, its
+ * entry in the array of longs is updated with the offset in the Commit Log
+ * file where it was written. This helps speed up recovery since we can seek
+ * to these offsets and start processing the commit log.
+ *
+ * Every Commit Log is rolled over everytime it reaches its threshold in size;
+ * the new log inherits the "dirty" bits from the old.
+ *
+ * Over time there could be a number of commit logs that would be generated.
+ * To allow cleaning up non-active commit logs, whenever we flush a column family and update its bit flag in
+ * the active CL, we take the dirty bit array and bitwise & it with the headers of the older logs.
+ * If the result is 0, then it is safe to remove the older file.  (Since the new CL
+ * inherited the old's dirty bitflags, getting a zero for any given bit in the anding
+ * means that either the CF was clean in the old CL or it has been flushed since the
+ * switch in the new.)
+ */
+}}}
+AbstractCommitLogExecutorService.java
+BatchCommitLogExecutorService.java
+BatchCommitLogExecutorServiceMBean.java
+ICommitLogExecutorService.java
+PeriodicCommitLogExecutorService.java
+PeriodicCommitLogExecutorServiceMBean.java

@@ -83,7 +83,7 @@ BufferedRandomAccessFile createWriter(String file);
 
 // 这个应该是CommitLogSegment中最重要的方法了，写log操作
 // 1) update header
-// 2) write mutation, w/ checksum on the size and data (the checksum of length, length, the checksum of value, value)
+// 2) write mutation, w/ checksum on the size and data (length, the checksum of length, value, the checksum of value)
 CommitLogSegment.CommitLogContext write(RowMutation rowMutation, Object serializedRow)
 }}}
 

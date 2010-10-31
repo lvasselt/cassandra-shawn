@@ -26,9 +26,41 @@ private Map<Integer, Integer> cfDirtiedAt; // position at which each CF was last
 String getHeaderPathFromSegment(CommitLogSegment segment);
 String getHeaderPathFromSegmentPath(String segmentPath);
 
-包含两个方法: serialize, deserialize; 其中serialize用来将CommitLogHeader写入到header文件中，
+包含两个方法: serialize, deserialize; 其中serialize用来将CommitLogHeader写入到header文件中，格式为：the number of key-value mappings in this map, the checksum of key-value mappings in this map, key#0, value#0, key#1, value#1 ....; 而deserialize按照这个序列读取commit log header，构造数据结构CommitLogHeader.
 
 static CommitLogHeaderSerializer serializer = new CommitLogHeaderSerializer();
+    void serialize(CommitLogHeader clHeader, DataOutput dos);
+    CommitLogHeader deserialize(DataInput dis);
+
+// test if the column family id was in map(id => position)
+boolean isDirty(Integer cfId);
+
+// get the cfId's position(at which each CF was last flushed);
+int getPosition(Integer cfId);
+
+// put the (cfId, position) into map
+void turnOn(Integer cfId, long position);
+
+// remove cfId from map
+void turnOff(Integer cfId);
+
+// test if map empty
+boolean isSafeToDelete();
+
+// CLH(dirty+flushed={key#0:value#0,key#1:value#1, ........})
+String toString();
+
+// key#0,key#1,key#2 ....
+String dirtyString();
+
+// call serialize
+void writeCommitLogHeader(CommitLogHeader header, String headerFile);
+
+// call deserialize
+CommitLogHeader readCommitLogHeader(String headerFile);
+
+// 返回所有column families中最小的last flush position
+int getReplayPosition();
 }}}
 CommitLogSegment.java
 {{{

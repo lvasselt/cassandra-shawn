@@ -218,3 +218,5 @@ BatchCommitLogExecutorServiceMBean.java
 ICommitLogExecutorService.java
 PeriodicCommitLogExecutorService.java
 PeriodicCommitLogExecutorServiceMBean.java
+
+需要先了解一下上层的实现，特别是Memtable和数据结构Column families!

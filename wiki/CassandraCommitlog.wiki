@@ -150,6 +150,66 @@ void add(RowMutation rowMutation, Object serializedRow);
  */
 void discardCompletedSegments(final Integer cfId, final CommitLogSegment.CommitLogContext context);
  
+                 |
+                 |
+                 V
+/**
+ * Delete log segments whose contents have been turned into SSTables. NOT threadsafe.
+ *
+ * param @ context The commitLog context .
+ * param @ id id of the columnFamily being flushed to disk.
+ *
+ */
+private void discardCompletedSegmentsInternal(CommitLogSegment.CommitLogContext context, Integer id) {
+    /*
+     * Loop through all the commit log files in the history. Now process
+     * all files that are older than the one in the context. For each of
+     * these files the header needs to modified by resetting the dirty
+     * bit corresponding to the flushed CF.
+     */
+    // 处理当前commitlog所有的CommitLogSegment
+    Iterator<CommitLogSegment> iter = segments.iterator(); 
+    while (iter.hasNext())
+    {
+        CommitLogSegment segment = iter.next();
+        // header决定了当前正在处理的segment属于哪个commit log
+        CommitLogHeader header = segment.getHeader(); 
+
+            // 最后一个需要处理的Segment, 记住最后flush的position
+            if (segment.equals(context.getSegment())) 
+            {
+                // we can't just mark the segment where the flush happened clean,
+                // since there may have been writes to it between when the flush
+                // started and when it finished. so mark the flush position as
+                // the replay point for this CF, instead.
+                if (logger.isDebugEnabled())
+                    logger.debug("Marking replay position " + context.position + " on commit log " + segment);
+                header.turnOn(id, context.position);
+                segment.writeHeader();
+                break;
+            }
+
+            // 因为CF已经被flush了，所以这个segment对应的commit log header对应的bit置1
+            header.turnOff(id);
+
+            // 当一个commit log的CommitLogHeader中的bitset都置0了，表示可以删除这个commit log了
+            if (header.isSafeToDelete()) 
+            {
+                segment.close(); // close the commit log
+                DeletionService.submitDelete(segment.getHeaderPath()); // delete the commit log and commig log header
+                DeletionService.submitDelete(segment.getPath());
+                // usually this will be the first (remaining) segment, but not always, if segment A contains
+                // writes to a CF that is unflushed but is followed by segment B whose CFs are all flushed.
+                iter.remove();
+            }
+            else
+            {
+                segment.writeHeader(); // 因为header已经更新了，所以需要重新写入到disk中
+            }
+        }
+
+}
+
 }}}
 AbstractCommitLogExecutorService.java
 BatchCommitLogExecutorService.java

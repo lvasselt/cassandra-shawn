@@ -35,6 +35,58 @@ public boolean isMarkedForDelete()
     return false;
 }
 
+}}}
+
+ * DeletedColumn.java
+{{{
+继承了Column，唯一的差别就是传递给构造函数的value是localDeletionTime
+}}}
+
+ * ExpiringColumn.java
+{{{
+继承了Colomn，另外定义下面的两个变量
+// (int) (System.currentTimeMillis() / 1000) + timeToLive
+private final int localExpirationTime; 
+private final int timeToLive;
+
+@Override
+public boolean isMarkedForDelete()
+{
+    return (int) (System.currentTimeMillis() / 1000 ) > localExpirationTime;
+}
+
+// Column的size + sizeof(timeToLive) + sizeof(localExpirationTime)
+@Override
+public int size()
+{
+    /*
+     * An expired column adds to a Column : 
+     *    4 bytes for the localExpirationTime
+     *  + 4 bytes for the timeToLive
+     */
+    return super.size() + DBConstants.intSize_ + DBConstants.intSize_;
+}
+}}}
+
+ * SuperColumn.java
+{{{
+// 可以看成是SuperColumn的索引，通过name_可以在cf's map快速找到它
+private byte[] name_; 
+
+// SuperColumn存储数据的地方, IColumn可以是Column，也可以是SuperColumn，其他就可以把name_ => columns_看做是(name, value)
+private ConcurrentSkipListMap<byte[], IColumn> columns_;
+
+// delete标记，决定SuperColumn是否被删除
+private AtomicInteger localDeletionTime = new AtomicInteger(Integer.MIN_VALUE);
+private AtomicReference<IClock> markedForDeleteAt;
+private AbstractReconciler reconciler;
+
+public boolean isMarkedForDelete()
+{
+    IClock _markedForDeleteAt = markedForDeleteAt.get();
+    return _markedForDeleteAt.compare(_markedForDeleteAt.type().minClock()) == ClockRelationship.GREATER_THAN;
+}
+
 /**
  * This calculates the exact size of the sub columns on the fly
  */
@@ -97,60 +149,6 @@ public void putColumn(IColumn column) // column是SuperColumn!!!
     FBUtilities.atomicSetMax(localDeletionTime, column.getLocalDeletionTime()); // do this first so we won't have a column that's "deleted" but has no local deletion time
     FBUtilities.atomicSetMax(markedForDeleteAt, column.getMarkedForDeleteAt());
 }
-
-}}}
-
- * DeletedColumn.java
-{{{
-继承了Column，唯一的差别就是传递给构造函数的value是localDeletionTime
-}}}
-
- * ExpiringColumn.java
-{{{
-继承了Colomn，另外定义下面的两个变量
-// (int) (System.currentTimeMillis() / 1000) + timeToLive
-private final int localExpirationTime; 
-private final int timeToLive;
-
-@Override
-public boolean isMarkedForDelete()
-{
-    return (int) (System.currentTimeMillis() / 1000 ) > localExpirationTime;
-}
-
-// Column的size + sizeof(timeToLive) + sizeof(localExpirationTime)
-@Override
-public int size()
-{
-    /*
-     * An expired column adds to a Column : 
-     *    4 bytes for the localExpirationTime
-     *  + 4 bytes for the timeToLive
-     */
-    return super.size() + DBConstants.intSize_ + DBConstants.intSize_;
-}
-}}}
-
- * SuperColumn.java
-{{{
-// 可以看成是SuperColumn的索引，通过name_可以在cf's map快速找到它
-private byte[] name_; 
-
-// SuperColumn存储数据的地方, IColumn可以是Column，也可以是SuperColumn，其他就可以把name_ => columns_看做是(name, value)
-private ConcurrentSkipListMap<byte[], IColumn> columns_;
-
-// delete标记，决定SuperColumn是否被删除
-private AtomicInteger localDeletionTime = new AtomicInteger(Integer.MIN_VALUE);
-private AtomicReference<IClock> markedForDeleteAt;
-private AbstractReconciler reconciler;
-
-public boolean isMarkedForDelete()
-{
-    IClock _markedForDeleteAt = markedForDeleteAt.get();
-    return _markedForDeleteAt.compare(_markedForDeleteAt.type().minClock()) == ClockRelationship.GREATER_THAN;
-}
-
-
 
 }}}
 

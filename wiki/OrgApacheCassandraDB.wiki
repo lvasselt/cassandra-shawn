@@ -427,6 +427,51 @@ private int minCompactionThreshold;
 private int maxCompactionThreshold;
 
 
+---------------
+
+√scrub directory过程：
+
+    scrubDataDirectory
+
+    1) Deleted compacted or temporay files
+    2) Deleted zero-length files
+    3) Deleted orphans files (missing Data file)
+
+√insert/update过程：
+
+    apply(key, value)  ------------> cfs
+         |
+         |
+        put            ------------> memtable
+         |
+         |
+      resolve
+         |
+         |
+    columnFamilies.putIfAbsent(key, cf)
+
+√flush过程：
+
+   forceFlushIfExpired                 -------------> cfs
+           |
+           |
+      forceFlush
+           |
+           |
+   maybeSwitchMemtable
+           |
+           |
+      submitFlush 
+           |
+           |
+     flushAndSignal                     ------------> memtable
+           |
+           |
+   writeSortedContents => getFlushPath
+           |  
+           |                            =========> addSSTable
+           |
+SSTableWriter.append(key, value)               
 
 }}}
 

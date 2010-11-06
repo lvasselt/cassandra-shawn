@@ -263,6 +263,24 @@ public void addColumn(IColumn column)
 
 }}}
 
+ * Row.java
+{{{
+public final DecoratedKey key;
+public final ColumnFamily cf; // 其实就是数据模型中的columns所处的位置
+}}}
+
+ * Table.java
+{{{
+// Table objects, one per keyspace.  only one instance should ever exist for any given keyspace.
+// 这个Map被所有的keyspace共用
+private static final Map<String, Table> instances = new NonBlockingHashMap<String, Table>();
+
+// Table name 
+public final String name;
+    
+// ColumnFamilyStore per column family, Integer是cfid
+public final Map<Integer, ColumnFamilyStore> columnFamilyStores = new HashMap<Integer, ColumnFamilyStore>();
+}}}
 
  * IFlushable.java
 {{{
@@ -422,7 +440,7 @@ private AtomicInteger fileIndexGenerator = new AtomicInteger(0);
  * ReadRepairVerbHandler.java
  * ReadResponse.java
  * ReadVerbHandler.java
- * Row.java
+
  * RowIterator.java
  * RowIteratorFactory.java
  * RowMutation.java
@@ -433,7 +451,7 @@ private AtomicInteger fileIndexGenerator = new AtomicInteger(0);
  * SliceFromReadCommand.java
 
  * SystemTable.java
- * Table.java
+
  * TimestampClock.java
  * TruncateResponse.java
  * TruncateVerbHandler.java

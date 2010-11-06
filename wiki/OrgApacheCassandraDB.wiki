@@ -152,6 +152,118 @@ public void putColumn(IColumn column) // column是SuperColumn!!!
 
 }}}
 
+ * ColumnFamily.java
+{{{
+private final Integer cfid; // cf id
+private final ColumnFamilyType type; // cf type
+private final ClockType clockType;
+private final AbstractReconciler reconciler; //  how to resolve the conflict 
+
+private transient ICompactSerializer2<IColumn> columnSerializer;
+final AtomicReference<IClock> markedForDeleteAt;
+final AtomicInteger localDeletionTime = new AtomicInteger(Integer.MIN_VALUE);
+
+// cf的data都放在这里，byte[]可以看做是IColumn的索引，而IColumn可以是Column, SuperColumn
+// 如果是Column，则byte[]是name， 如果是SuperColumn，则byte[]是name_
+// <byte[], IColumn>中的IColumn仅仅是row_key对应的value,row_key没有存放在这里
+private ConcurrentSkipListMap<byte[], IColumn> columns; 
+
+/**
+ * @return The CFMetaData for this row, or null if the column family was dropped.
+ */
+public CFMetaData metadata()
+{
+    return DatabaseDescriptor.getCFMetaData(cfid);
+}
+
+// 把这个ColumnFamily的所有IColumn添加到当前cf中去
+public void addAll(ColumnFamily cf);
+
+// 返回这个cf中有多少IColumn, Returns the number of key-value mappings in this map
+int getColumnCount();
+
+public void addColumn(QueryPath path, byte[] value, IClock clock)
+{
+    assert path.columnName != null : path;
+    addColumn(path.superColumnName, new Column(path.columnName, value, clock));
+}
+
+public void addTombstone(QueryPath path, byte[] localDeletionTime, IClock clock)
+{
+    addColumn(path.superColumnName, new DeletedColumn(path.columnName, localDeletionTime, clock));
+}
+
+public void addColumn(QueryPath path, byte[] value, IClock clock, int timeToLive)
+{
+    assert path.columnName != null : path;
+    Column column;
+    if (timeToLive > 0)
+        column = new ExpiringColumn(path.columnName, value, clock, timeToLive);
+    else
+        column = new Column(path.columnName, value, clock);
+    addColumn(path.superColumnName, column);
+}
+
+public void deleteColumn(byte[] column, int localDeletionTime, IClock clock)
+{
+    addColumn(null, new DeletedColumn(column, localDeletionTime, clock));
+}
+
+public void deleteColumn(QueryPath path, int localDeletionTime, IClock clock)
+{
+    assert path.columnName != null : path;
+    addColumn(path.superColumnName, new DeletedColumn(path.columnName, localDeletionTime, clock));
+}
+
+public void addColumn(byte[] superColumnName, Column column)
+{
+    IColumn c;
+    if (superColumnName == null)
+    {
+        c = column;
+    }
+    else
+    {
+        assert isSuper();
+        c = new SuperColumn(superColumnName, getSubComparator(), clockType, reconciler);
+        c.addColumn(column); // checks subcolumn name
+    }
+    addColumn(c);
+}
+
+/*
+ * If we find an old column that has the same name
+ * the ask it to resolve itself else add the new column .
+*/
+public void addColumn(IColumn column)
+{
+    byte[] name = column.name();
+    IColumn oldColumn = columns.putIfAbsent(name, column);
+    if (oldColumn != null)
+    {
+        if (oldColumn instanceof SuperColumn)
+        {
+            ((SuperColumn) oldColumn).putColumn(column);
+        }
+        else
+        {
+            // calculate reconciled col from old (existing) col and new col
+            IColumn reconciledColumn = reconciler.reconcile((Column)column, (Column)oldColumn);
+            while (!columns.replace(name, oldColumn, reconciledColumn))
+            {
+                // if unable to replace, then get updated old (existing) col
+                oldColumn = columns.get(name);
+                // re-calculate reconciled col from updated old col and original new col
+                reconciledColumn = reconciler.reconcile((Column)column, (Column)oldColumn);
+                // try to re-update value, again
+            }
+        }
+    }
+}
+
+}}}
+
+
  * IFlushable.java
 {{{
 这个接口提供一个Stage工作方式的method，sorter是cpu-bound，而write则是disk-bound
@@ -281,7 +393,6 @@ private AtomicInteger fileIndexGenerator = new AtomicInteger(0);
  * BinaryVerbHandler.java
  * ClockType.java
 
- * ColumnFamily.java
  * ColumnFamilyNotDefinedException.java
  * ColumnFamilySerializer.java
 

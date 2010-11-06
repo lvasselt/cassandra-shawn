@@ -388,22 +388,42 @@ List<DecoratedKey> getSortedKeys();
  * which is necessary for replay in case of a restart since CommitLog assumes that when onMF is
  * called, all data up to the given context has been persisted to SSTables.
  */
-final CFMetaData metadata;
-final Table table;
-final String columnFamily;
 
 // Memtable的flushAndSignal会用到这几个fields
 ExecutorService flushSorter;
 ExecutorService flushWriter;
-Set<Memtable> memtablesPendingFlush;
+private Set<Memtable> memtablesPendingFlush = new ConcurrentSkipListSet<Memtable>();
 
-// active memtable associated with this ColumnFamilyStore
-private Memtable memtable;
-// 
-private AtomicReference<BinaryMemtable> binaryMemtable
+public final Table table;
+public final String columnFamily;
+public final IPartitioner partitioner;
+private final String mbeanName;
 
-// This is used to generate the next index for a SSTable
+private volatile int memtableSwitchCount = 0;
+
+/* This is used to generate the next index for a SSTable */
 private AtomicInteger fileIndexGenerator = new AtomicInteger(0);
+
+/* active memtable associated with this ColumnFamilyStore. */
+private Memtable memtable;
+
+private final SortedMap<byte[], ColumnFamilyStore> indexedColumns;  // ??
+
+// TODO binarymemtable ops are not threadsafe (do they need to be?)
+private AtomicReference<BinaryMemtable> binaryMemtable;
+
+/* SSTables on disk for this column family */
+private SSTableTracker ssTables;
+
+private LatencyTracker readStats = new LatencyTracker();
+private LatencyTracker writeStats = new LatencyTracker();
+
+public final CFMetaData metadata;
+
+/* These are locally held copies to be changed from the config during runtime */
+private int minCompactionThreshold;
+private int maxCompactionThreshold;
+
 
 
 }}}

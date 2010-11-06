@@ -1,4 +1,159 @@
 #labels OrgApacheCassandraDB
+ * IColumn.java
+{{{
+Column和SuperColumn的接口，里面有Column和SuperColumn都要用到的方法
+}}}
+
+ * Column.java
+{{{
+// 一个Column包含这三个fields，这个是Cassandra数据模型中的最小单位了
+protected final byte[] name;
+protected final byte[] value;
+protected final IClock clock;
+
+// 返回这个Column的field对应的值
+public byte[] name();
+public byte[] value();
+public IClock clock();
+
+// 一个Column的大小
+public int size()
+{
+    /*
+     * Size of a column is =
+     *   size of a name (short + length of the string)
+     * + 1 byte to indicate if the column has been deleted
+     * + x bytes depending on IClock size
+     * + 4 bytes which basically indicates the size of the byte array
+     * + entire byte array.
+     */
+    return DBConstants.shortSize_ + name.length + DBConstants.boolSize_ + clock.size() + DBConstants.intSize_ + value.length;
+}
+
+public boolean isMarkedForDelete()
+{
+    return false;
+}
+
+/**
+ * This calculates the exact size of the sub columns on the fly
+ */
+public int size()
+{
+    int size = 0;
+    for (IColumn subColumn : getSubColumns())
+    {
+        size += subColumn.serializedSize(); // serializedSize（）是Column/DColumn/EColumn的
+    }
+    return size;
+}
+
+/**
+ * This returns the size of the super-column when serialized.
+ * @see org.apache.cassandra.db.IColumn#serializedSize()
+*/
+public int serializedSize() //  serializedSize调用size
+{
+	/*
+	 * We need to keep the way we are calculating the column size in sync with the
+	 * way we are calculating the size for the column family serializer.
+	 */
+  IClock _markedForDeleteAt = markedForDeleteAt.get();
+  return DBConstants.shortSize_ + name_.length + DBConstants.intSize_ + _markedForDeleteAt.size() + DBConstants.intSize_ + size();
+}
+
+public void addColumn(IColumn column)
+{
+    assert column instanceof Column : "A super column can only contain simple columns";
+
+    byte[] name = column.name();
+    IColumn oldColumn = columns_.putIfAbsent(name, column);
+    if (oldColumn != null)
+    {
+        IColumn reconciledColumn = reconciler.reconcile((Column)column, (Column)oldColumn);
+        while (!columns_.replace(name, oldColumn, reconciledColumn))
+        {
+            // if unable to replace, then get updated old (existing) col
+            oldColumn = columns_.get(name);
+            // re-calculate reconciled col from updated old col and original new col
+            reconciledColumn = reconciler.reconcile((Column)column, (Column)oldColumn);
+            // try to re-update value, again
+        }
+	}
+}
+
+/*
+ * Go through each sub column if it exists then as it to resolve itself
+ * if the column does not exist then create it.
+ */  
+public void putColumn(IColumn column) // column是SuperColumn!!!
+{
+    assert column instanceof SuperColumn;
+
+    for (IColumn subColumn : column.getSubColumns())
+    {
+    	addColumn(subColumn);
+    }
+    FBUtilities.atomicSetMax(localDeletionTime, column.getLocalDeletionTime()); // do this first so we won't have a column that's "deleted" but has no local deletion time
+    FBUtilities.atomicSetMax(markedForDeleteAt, column.getMarkedForDeleteAt());
+}
+
+}}}
+
+ * DeletedColumn.java
+{{{
+继承了Column，唯一的差别就是传递给构造函数的value是localDeletionTime
+}}}
+
+ * ExpiringColumn.java
+{{{
+继承了Colomn，另外定义下面的两个变量
+// (int) (System.currentTimeMillis() / 1000) + timeToLive
+private final int localExpirationTime; 
+private final int timeToLive;
+
+@Override
+public boolean isMarkedForDelete()
+{
+    return (int) (System.currentTimeMillis() / 1000 ) > localExpirationTime;
+}
+
+// Column的size + sizeof(timeToLive) + sizeof(localExpirationTime)
+@Override
+public int size()
+{
+    /*
+     * An expired column adds to a Column : 
+     *    4 bytes for the localExpirationTime
+     *  + 4 bytes for the timeToLive
+     */
+    return super.size() + DBConstants.intSize_ + DBConstants.intSize_;
+}
+}}}
+
+ * SuperColumn.java
+{{{
+// 可以看成是SuperColumn的索引，通过name_可以在cf's map快速找到它
+private byte[] name_; 
+
+// SuperColumn存储数据的地方, IColumn可以是Column，也可以是SuperColumn，其他就可以把name_ => columns_看做是(name, value)
+private ConcurrentSkipListMap<byte[], IColumn> columns_;
+
+// delete标记，决定SuperColumn是否被删除
+private AtomicInteger localDeletionTime = new AtomicInteger(Integer.MIN_VALUE);
+private AtomicReference<IClock> markedForDeleteAt;
+private AbstractReconciler reconciler;
+
+public boolean isMarkedForDelete()
+{
+    IClock _markedForDeleteAt = markedForDeleteAt.get();
+    return _markedForDeleteAt.compare(_markedForDeleteAt.type().minClock()) == ClockRelationship.GREATER_THAN;
+}
+
+
+
+}}}
+
  * IFlushable.java
 {{{
 这个接口提供一个Stage工作方式的method，sorter是cpu-bound，而write则是disk-bound
@@ -127,7 +282,7 @@ private AtomicInteger fileIndexGenerator = new AtomicInteger(0);
 
  * BinaryVerbHandler.java
  * ClockType.java
- * Column.java
+
  * ColumnFamily.java
  * ColumnFamilyNotDefinedException.java
  * ColumnFamilySerializer.java
@@ -143,11 +298,10 @@ private AtomicInteger fileIndexGenerator = new AtomicInteger(0);
  * DefinitionsAnnounceVerbHandler.java
  * DefinitionsUpdateResponseVerbHandler.java
  * DefsTable.java
- * DeletedColumn.java
- * ExpiringColumn.java
+
  * HintedHandOffManager.java
  * IClock.java
- * IColumn.java
+
  * IColumnContainer.java
 
  * IndexScanCommand.java
@@ -168,7 +322,7 @@ private AtomicInteger fileIndexGenerator = new AtomicInteger(0);
  * SchemaCheckVerbHandler.java
  * SliceByNamesReadCommand.java
  * SliceFromReadCommand.java
- * SuperColumn.java
+
  * SystemTable.java
  * Table.java
  * TimestampClock.java

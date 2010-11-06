@@ -1,5 +1,96 @@
 #labels org.apache.cassandra.db
+
+ * IFlushable.java
+{{{
+这个接口提供一个Stage工作方式的method，sorter是cpu-bound，而write则是disk-bound
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.locks.Condition;
+
+public interface IFlushable
+{
+    public void flushAndSignal(CountDownLatch condition, ExecutorService sorter, ExecutorService writer);
+}
+}}}
+
+ * Memtable.java
+{{{
+Memtable实现了接口IFlushable，所以它会实现flushAndSignal
+
+isFrozen  // Memtable是否正在flush
+currentThroughput // Memtable目前的size
+currentOperations // Memtable中有多少个Column
+creationTime // Memtable的create时间
+
+// Memtable的数据都存储在这里
+ConcurrentNavigableMap<DecoratedKey, ColumnFamily> columnFamilies;
+
+// Memtable所属的ColumnFamily对应的cfs，当Memtable满的时候，创建新的Memtable同样绑定在这个cfs上面去
+ColumnFamilyStore cfs;
+
+Memtable有两个重要的方法，一个是put，另外一个就是flushAndSignal：
+
+/**
+ * Should only be called by ColumnFamilyStore.apply.  NOT a public API.
+ * (CFS handles locking to avoid submitting an op
+ *  to a flushing memtable.  Any other way is unsafe.)
+ */
+void put(DecoratedKey key, ColumnFamily columnFamily);
+该函数会调用void resolve(DecoratedKey key, ColumnFamily cf)
+1) 增加计数器currentThroughput和currentOperations的值。
+2) 如果在columnFamilies里不存在key -> columnFamily的映射，则添加进去。
+3) 如果存在，则需要将columnFamily里的IColumn添加到已经存在的columnFamily里去。
+
+void flushAndSignal(final CountDownLatch latch, ExecutorService sorter, final ExecutorService writer);
+该函数会调用SSTableReader writeSortedContents()
+1) 把当前的Memtable添加到cfs的memtablesPendingFlush中
+2）将sorter和writer的工作交给ExecutorService
+3）write完成以后会将Memtable从cfs的memtablesPendingFlush移除
+}}}
+
  * BinaryMemtable.java
+{{{
+BinaryMemtable实现了接口IFlushable，所以它会实现flushAndSignal
+
+currentSize  // BinaryMemtable当前大小
+isFrozen // BinaryMemtable是否可用
+Lock lock; // 同步
+Condition condition;
+
+// BinaryMemtable存储数据的地方，注意和Memtable的不同的是key -> byte[]的映射
+Map<DecoratedKey, byte[]> columnFamilies; 
+// BinaryMemtable关联的cfs
+ColumnFamilyStore cfs;
+
+BinaryMemtable同样有两个重要的方法，一个是put，另外一个是flushAndSignal
+
+/*
+ * This version is used by the external clients to put data into
+ * the memtable. This version will respect the threshold and flush
+ * the memtable to disk when the size exceeds the threshold.
+ */
+// 1) 判断isThresholdViolated是否为true，如果是
+//   1.1) 上锁
+//   1.2) 判断isFrozen，如果是false，则将isFrozen设置为true，调用cfs的submitFlush将
+//        BinaryMemtable的数据flush到SSTable，然后调用switchBinaryMemtable将key -> byte[]
+//        添加到新建的BinaryMemtable中去。
+//   1.3 如果是true，则调用cfs的applyBinary将key -> byte[]添加到新建的BinaryMemtable中去     
+// 2）如果不是，直接调用void resolve(DecoratedKey key, byte[] buffer)将key -> byte[]添加到
+//    columnFamilies中去
+void put(DecoratedKey key, byte[] buffer);
+
+
+// 和Memtable的flushAndSignal差不多一样，同样调用其SSTableReader 
+// writeSortedContents(List<DecoratedKey> sortedKeys)方法，但是这里不会将BinaryMemtable添加// 到cfs的memtablesPendingFlush中去。
+void flushAndSignal(final CountDownLatch latch, ExecutorService sorter, final ExecutorService writer);
+
+// 对columnFamilies的keys进行排序返回
+List<DecoratedKey> getSortedKeys();
+
+
+}}}
+
  * BinaryVerbHandler.java
  * ClockType.java
  * Column.java
@@ -24,10 +115,10 @@
  * IClock.java
  * IColumn.java
  * IColumnContainer.java
- * IFlushable.java
+
  * IndexScanCommand.java
  * KeyspaceNotDefinedException.java
- * Memtable.java
+
  * RangeSliceCommand.java
  * RangeSliceReply.java
  * ReadCommand.java

@@ -282,6 +282,8 @@ public final String name;
 public final Map<Integer, ColumnFamilyStore> columnFamilyStores = new HashMap<Integer, ColumnFamilyStore>();
 }}}
 
+[http://cassandra-shawn.googlecode.com/files/cassandra_data_model.JPG]
+
  * IFlushable.java
 {{{
 这个接口提供一个Stage工作方式的method，sorter是cpu-bound，而write则是disk-bound

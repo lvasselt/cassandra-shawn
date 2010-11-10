@@ -3,4 +3,4 @@
 
 文茂在百度文库上传了一个关于Cassandra的document：Cassandra分布式模型与源代码分析，大概有100页（真是能写啊！），没有什么事情的时候可以仔细阅读一下，看看和自己通过wiki + blog + source code理解的是否一致，当然也可以在这里加一些daily report。
 
-2010/11/10: 开始阅读document: Cassandra分布式模型与源代码分析,阅读到第二十七页: MemTable
+2010/11/10: 开始阅读document: Cassandra分布式模型与源代码分析,阅读到第二十九页: Binary MemTable

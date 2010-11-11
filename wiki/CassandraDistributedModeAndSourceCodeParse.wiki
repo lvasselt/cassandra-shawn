@@ -6,3 +6,7 @@
 2010/11/10: 开始阅读document: Cassandra分布式模型与源代码分析,阅读到第二十九页: Binary MemTable
 
 发现[http://www.cnblogs.com/gpcuster/tag/Cassandra/]写了不少关于Cassandra的东东，可以阅读一下！
+
+2010/11/11: 阅读到第四十一页，站在全局的角度看read/write/delete是如何工作的。
+
+发现[http://blog.csdn.net/Java2King/archive/2010/07/29/5774376.aspx]针对读写删除介绍的不错。

@@ -1,0 +1,21 @@
+If a node which should receive a write is down, Cassandra will write a hint to a live replica node indicating that the write needs to be replayed to the unavailable node. If no live replica nodes exist for this key（replica node必须是这个key对应的replica node，还是随机选择的？这里貌似是前者啊！！）, and ConsistencyLevel.ANY was specified, the coordinating node will write the hint locally. Cassandra uses hinted handoff as a way to (1) reduce the time required for a temporarily failed node to become consistent again with live ones and (2) provide extreme write availability when consistency is not required.
+
+A hinted write is NOT sufficient to count towards ConsistencyLevel requirements of ONE, QUORUM, or ALL. Take the simple example of a cluster of two nodes, A and B, and a replication factor of 1 (each key is stored on one node). Suppose node A is down while we write key K to it with ConsistencyLevel.ONE. Then we must fail the write: recall from the API page that "if W + R > ReplicationFactor, where W is the number of nodes to block for on write, and R the number to block for on reads, you will have strongly consistent behavior; that is, readers will always see the most recent write."
+
+Thus if we write a hint to B and call the write good because it is written "somewhere," there is no way to read the data at any ConsistencyLevel until A comes back up and B forwards the data to him. Historically, only the lowest ConsistencyLevel of ZERO would accept writes in this situation; for 0.6, we added ConsistencyLevel.ANY, meaning, "wait for a write to succeed anywhere, even a hinted write that isn't immediately readable."
+
+
+---
+
+下面是dynamo paper中定义的Hinted handoff
+
+
+4.6 Handling Failures: Hinted Handoff
+
+If Dynamo used a traditional quorum approach it would be unavailable during server failures and network partitions, and would have reduced durability even under the simplest of failure conditions. To remedy this it does not enforce strict quorum membership and instead it uses a “sloppy quorum”; all read and write operations are performed on the first N healthy nodes from the preference list, which may not always be the first N nodes encountered while walking the consistent hashing ring.
+
+Consider the example of Dynamo configuration given in Figure 2 with N=3. In this example, if node A is temporarily down or unreachable during a write operation then a replica that would normally have lived on A will now be sent to node D. This is done to maintain the desired availability and durability guarantees. The replica sent to D will have a hint in its metadata that suggests which node was the intended recipient of the replica (in this case A). Nodes that receive hinted replicas will keep them in a separate local database that is scanned periodically. Upon detecting that A has recovered, D will attempt to deliver the replica to A. Once the transfer succeeds, D may delete the object from its local store without decreasing the total number of replicas in the system.
+
+Using hinted handoff, Dynamo ensures that the read and write operations are not failed due to temporary node or network failures. Applications that need the highest level of availability can set W to 1, which ensures that a write is accepted as long as a single node in the system has durably written the key it to its local store. Thus, the write request is only rejected if all nodes in the system are unavailable. However, in practice, most Amazon services in production set a higher W to meet the desired level of durability. A more detailed discussion of configuring N, R and W follows in section 6.
+
+It is imperative that a highly available storage system be capable of handling the failure of an entire data center(s). Data center failures happen due to power outages, cooling failures, network failures, and natural disasters. Dynamo is configured such that each object is replicated across multiple data centers. In essence, the preference list of a key is constructed such that the storage nodes are spread across multiple data centers. These datacenters are connected through high speed network links. This scheme of replicating across multiple datacenters allows us to handle entire data center failures without a data outage.

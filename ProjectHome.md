@@ -1,0 +1,1 @@
+Learn the architecture of open source project Cassandra, [revision 0](https://code.google.com/p/cassandra-shawn/source/detail?r=0).6.5
